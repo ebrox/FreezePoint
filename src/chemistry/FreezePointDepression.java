@@ -164,7 +164,7 @@ public class FreezePointDepression {
 
         // initialize particleFill from GasChamber using variables from 
          // combo boxes
-        bt.particleFill(0, 0);
+//        bt.particleFill(0, 0);
 
         //set grid bag layout constraints 
         boxGBC.insets = new Insets(10, 10, 10, 10);
@@ -606,26 +606,26 @@ public class FreezePointDepression {
                 incorrectLabel.setVisible(false);
                 incorrectLabel2.setVisible(false);
                                
-                if ((rate1 < ((bt.getVel1() * 6.343) * 1.002) && rate1 > ((bt.getVel1() * 6.343) * .998)) && ((mw1 < (bt.getMw1() * 1.02) && mw1 > (bt.getMw1() * .98)))) {
-                    correctLabel.setVisible(true);
-                } else {
-                    incorrectLabel.setVisible(true);
-                }
-                if ((rate2 < ((bt.getVel2() * 6.343) * 1.002) && rate2 > ((bt.getVel2() * 6.343) * .998)) && ((mw2 < (bt.getMw2() * 1.02) && mw2 > (bt.getMw2() * .98)))) {
-                    correctLabel2.setVisible(true);
-                } else {
-                    incorrectLabel2.setVisible(true);
-                }
+//                if ((rate1 < ((bt.getVel1() * 6.343) * 1.002) && rate1 > ((bt.getVel1() * 6.343) * .998)) && ((mw1 < (bt.getMw1() * 1.02) && mw1 > (bt.getMw1() * .98)))) {
+//                    correctLabel.setVisible(true);
+//                } else {
+//                    incorrectLabel.setVisible(true);
+//                }
+//                if ((rate2 < ((bt.getVel2() * 6.343) * 1.002) && rate2 > ((bt.getVel2() * 6.343) * .998)) && ((mw2 < (bt.getMw2() * 1.02) && mw2 > (bt.getMw2() * .98)))) {
+//                    correctLabel2.setVisible(true);
+//                } else {
+//                    incorrectLabel2.setVisible(true);
+//                }
 
-                JOptionPane.showMessageDialog(null, "The Rate you entered "
-                        + "for selection one, " + table.getValueAt(0, 0)
-                        + ", is: " + rate1 + "   the answer is: " + format.format(bt.getVel1() * 6.34276)
-                        + "\nThe MW you entered is: " + mw1 + " the answer is: "
-                        + (bt.getMw1() * 1.000) + "\nThe Rate you entered for selection "
-                        + "two, " + table.getValueAt(1, 0) + ", is: " + rate2
-                        + "   the answer is: " + format.format(bt.getVel2() * 6.34276)
-                        + "\nThe MW you entered is: " + mw2 + " the answer is: "
-                        + (bt.getMw2() * 1.000));
+//                JOptionPane.showMessageDialog(null, "The Rate you entered "
+//                        + "for selection one, " + table.getValueAt(0, 0)
+//                        + ", is: " + rate1 + "   the answer is: " + format.format(bt.getVel1() * 6.34276)
+//                        + "\nThe MW you entered is: " + mw1 + " the answer is: "
+//                        + (bt.getMw1() * 1.000) + "\nThe Rate you entered for selection "
+//                        + "two, " + table.getValueAt(1, 0) + ", is: " + rate2
+//                        + "   the answer is: " + format.format(bt.getVel2() * 6.34276)
+//                        + "\nThe MW you entered is: " + mw2 + " the answer is: "
+//                        + (bt.getMw2() * 1.000));
                 
                 }
                 
@@ -647,8 +647,8 @@ public class FreezePointDepression {
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                bt.setGateOpen(true);
-                bt.requestFocus();
+//                bt.setGateOpen(true);
+//                bt.requestFocus();
             }
         });
         
@@ -745,24 +745,24 @@ public class FreezePointDepression {
         });
         
         //listener to start mix using particleFill method from GasChamber  
-        knownComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(!Element.isGateOpen()){
-                //set box1 to get the selected index 
-                box1 = knownComboBox.getSelectedIndex();
-                bt.particleFill(box1, box2);
-
-                //declares choice1 var. and sets value to selected item 
-                String choice1 = knownComboBox.getSelectedItem().toString();
-
-                //sets value at 0,0 in table to choice1 
-                table.setValueAt(choice1, 0, 0);
-                
-                }
-                bt.requestFocus();
-            }
-        });
+//        knownComboBox.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                if(!Element.isGateOpen()){
+//                //set box1 to get the selected index 
+//                box1 = knownComboBox.getSelectedIndex();
+//                bt.particleFill(box1, box2);
+//
+//                //declares choice1 var. and sets value to selected item 
+//                String choice1 = knownComboBox.getSelectedItem().toString();
+//
+//                //sets value at 0,0 in table to choice1 
+//                table.setValueAt(choice1, 0, 0);
+//                
+//                }
+//                bt.requestFocus();
+//            }
+//        });
         
         //create a listener for the periodic button 
         periodButton.addActionListener(new ActionListener() {
@@ -814,69 +814,69 @@ public class FreezePointDepression {
         });
         
         // listener for reset button 
-        resetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                bt.setGateOpen(false);
-                knownComboBox.setSelectedIndex(0);
-                unknownComboBox.setSelectedIndex(0);
-                clearTable(table);
-                Element.setIsWinner(false);
-                Element.setIsSecondWinner(false);
-                slider.setValue(85);
-                bt.setFRate(85);
-                String choice1 = knownComboBox.getSelectedItem().toString();
-                String choice2 = unknownComboBox.getSelectedItem().toString();
-                count = 0;
-                table.setEnabled(false);
-                t = 7.8829 + Math.random() * .0002;  
-                
-                //stops editing table and saves current data
-                if (table.isEditing()){
-                    table.getCellEditor().stopCellEditing();
-                }
-                table.setValueAt(choice1, 0, 0);
-                table.setValueAt(choice2, 1, 0);
-                table.setValueAt("", 0, 2);
-                table.setValueAt("", 0, 3);
-                table.setValueAt("", 1, 2);
-                table.setValueAt("", 1, 3);
-                correctLabel.setVisible(false);
-                correctLabel2.setVisible(false);
-                incorrectLabel.setVisible(false);
-                incorrectLabel2.setVisible(false);
-                bt.requestFocus();
-            }
-        });
+//        resetButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                bt.setGateOpen(false);
+//                knownComboBox.setSelectedIndex(0);
+//                unknownComboBox.setSelectedIndex(0);
+//                clearTable(table);
+//                Element.setIsWinner(false);
+//                Element.setIsSecondWinner(false);
+//                slider.setValue(85);
+//                bt.setFRate(85);
+//                String choice1 = knownComboBox.getSelectedItem().toString();
+//                String choice2 = unknownComboBox.getSelectedItem().toString();
+//                count = 0;
+//                table.setEnabled(false);
+//                t = 7.8829 + Math.random() * .0002;  
+//                
+//                //stops editing table and saves current data
+//                if (table.isEditing()){
+//                    table.getCellEditor().stopCellEditing();
+//                }
+//                table.setValueAt(choice1, 0, 0);
+//                table.setValueAt(choice2, 1, 0);
+//                table.setValueAt("", 0, 2);
+//                table.setValueAt("", 0, 3);
+//                table.setValueAt("", 1, 2);
+//                table.setValueAt("", 1, 3);
+//                correctLabel.setVisible(false);
+//                correctLabel2.setVisible(false);
+//                incorrectLabel.setVisible(false);
+//                incorrectLabel2.setVisible(false);
+//                bt.requestFocus();
+//            }
+//        });
         
         // listener to update frameRate in GasChamber 
-        slider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int value = slider.getValue();
-                bt.setFRate(value);
-                bt.requestFocus();
-            }
-        });
+//        slider.addChangeListener(new ChangeListener() {
+//            @Override
+//            public void stateChanged(ChangeEvent e) {
+//                int value = slider.getValue();
+//                bt.setFRate(value);
+//                bt.requestFocus();
+//            }
+//        });
         
         // listener to start mix using particleFill method from GasChamber 
-        unknownComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(!Element.isGateOpen()){
-                //set box2 to get the selected index
-                box2 = unknownComboBox.getSelectedIndex();
-                bt.particleFill(box1, box2);
-
-                //declares choice2 var. and sets value to selected item
-                String choice2 = unknownComboBox.getSelectedItem().toString();
-                //sets value at 1,0 in table to choice2
-                table.setValueAt(choice2, 1, 0);
-                
-                }
-                bt.requestFocus();
-            }
-        });
+//        unknownComboBox.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                if(!Element.isGateOpen()){
+//                //set box2 to get the selected index
+//                box2 = unknownComboBox.getSelectedIndex();
+//                bt.particleFill(box1, box2);
+//
+//                //declares choice2 var. and sets value to selected item
+//                String choice2 = unknownComboBox.getSelectedItem().toString();
+//                //sets value at 1,0 in table to choice2
+//                table.setValueAt(choice2, 1, 0);
+//                
+//                }
+//                bt.requestFocus();
+//            }
+//        });
     }
 
     /**
@@ -893,36 +893,36 @@ public class FreezePointDepression {
     /**
      * set time values in table after particles have passed finish line 
      */
-    public void setTableTime1(int id){
-        
-        
-        if(id == 0){
-            // pulls value of time1 from GasChamber  
-            time1 = GasChamber.getTime1() * t;  
-            // sets value at 0,1 in table to time1  
-            table.setValueAt(fiveSF.format(time1), 0, 1);
-            count++;
-        }
-        else{
-            // pulls value of time2 from GasChamber   
-            time2 = GasChamber.getTime2() * t;
-            // sets value at 1,1 in table to time2 
-            table.setValueAt(fiveSF.format(time2), 1, 1);
-            count++;
-        }
-        
-        if(count == 2){
-            //enable table
-            table.setEnabled(true);
-            
-            //makes the first two cells in each row non-editable
-            table.isCellEditable(0, 0);
-            table.isCellEditable(0, 1);
-            table.isCellEditable(1, 0);
-            table.isCellEditable(1, 1);
-            
-            //set focus to table
-            table.requestFocus();
-        }
-    }
+//    public void setTableTime1(int id){
+//        
+//        
+//        if(id == 0){
+//            // pulls value of time1 from GasChamber  
+//            time1 = GasChamber.getTime1() * t;  
+//            // sets value at 0,1 in table to time1  
+//            table.setValueAt(fiveSF.format(time1), 0, 1);
+//            count++;
+//        }
+//        else{
+//            // pulls value of time2 from GasChamber   
+//            time2 = GasChamber.getTime2() * t;
+//            // sets value at 1,1 in table to time2 
+//            table.setValueAt(fiveSF.format(time2), 1, 1);
+//            count++;
+//        }
+//        
+//        if(count == 2){
+//            //enable table
+//            table.setEnabled(true);
+//            
+//            //makes the first two cells in each row non-editable
+//            table.isCellEditable(0, 0);
+//            table.isCellEditable(0, 1);
+//            table.isCellEditable(1, 0);
+//            table.isCellEditable(1, 1);
+//            
+//            //set focus to table
+//            table.requestFocus();
+//        }
+//    }
 }
