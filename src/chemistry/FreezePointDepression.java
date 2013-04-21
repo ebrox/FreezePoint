@@ -17,7 +17,7 @@ import javax.swing.event.ChangeListener;
 import chemistry.GasChamber;
 import chemistry.MyTableModel;
 
-public class FreezePointDepression {
+public class FreezePointDepression extends JApplet{
 
     private final static boolean shouldFill = true;
     private final static boolean RIGHT_TO_LEFT = false;
@@ -33,12 +33,37 @@ public class FreezePointDepression {
     private static JTextArea helpTextArea;
     private static DecimalFormat format = new DecimalFormat("#,##0.000");
     private static DecimalFormat fiveSF = new DecimalFormat("#,##0.0000");
-    private static double t = 7.8829 + Math.random() * .0002;
+    
+    private static JComboBox knownComboBox, unknownComboBox;                    
+    private static JSlider slider;                                              
+    private static JLabel correctLabel, correctLabel2, incorrectLabel, incorrectLabel2; 
+    
+    public static void main(String[] args){
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setIconImage(new ImageIcon("src/layout/pscclogo.jpg").getImage());
+        frame.setResizable(false);
+        frame.setSize(1000, 600);
+        frame.setLocationRelativeTo(null);
+        JApplet applet = new FreezePointDepression();
+        applet.setPreferredSize(new Dimension(1000, 600));
+        applet.setBackground(new Color(12, 66, 116));
+        applet.init();
+        frame.getContentPane().add(applet);
+        frame.pack();
+        frame.setVisible(true);
+    }
+    
+    public FreezePointDepression(){
+        
+    }
 
     /**
      * Build components for GUI and add listeners
      */
-    public static void addComponentsToPane(Container pane) {
+    @Override
+    public void init() {
+        JPanel pane = new JPanel();
         if (RIGHT_TO_LEFT) {
             pane.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
@@ -158,6 +183,8 @@ public class FreezePointDepression {
         //initialize bt and make it focusable  
         bt.init();
         bt.setFocusable(true);
+        Dimension dim = new Dimension(800, 200);                                
+        bt.setPreferredSize(dim);  
 
         //add bt object to boxPanel 
         boxPanel.add(bt);
@@ -322,9 +349,9 @@ public class FreezePointDepression {
 
         //set slider constraints
         slider.setSize(100, 20);
-        slider.setValue(85);
-        slider.setMinimum(10);
-        slider.setMaximum(160);
+        slider.setValue(35);
+        slider.setMinimum(-10);
+        slider.setMaximum(80);
         slider.setMajorTickSpacing(25);
         slider.setMinorTickSpacing(5);
         slider.setPaintTicks(true);
@@ -850,14 +877,30 @@ public class FreezePointDepression {
 //        });
         
         // listener to update frameRate in GasChamber 
-//        slider.addChangeListener(new ChangeListener() {
-//            @Override
-//            public void stateChanged(ChangeEvent e) {
-//                int value = slider.getValue();
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int value = slider.getValue();
+                float cent = (float)Math.sqrt((((value - 90) * -1) / 100.0f) * (((value - 90) * -1) / 100.0f) / 200);
+                
+                float t = Math.abs((value - 90) / 50.0f);
+                
+                cent *= t;
+                cent -= .02f;
+                
+                float flit = ((value + 20) / 100.0f);
+                float negStr = (1 - flit) * 4f;
 //                bt.setFRate(value);
-//                bt.requestFocus();
-//            }
-//        });
+                bt.setCenterStr(cent);
+                bt.setFlit(flit);
+                bt.setNegStr(negStr);
+                System.out.println("Value: " + value);
+                System.out.println("NegStr: " + negStr);
+                System.out.println("Flit: " + flit);
+                System.out.println("CenterStr: " + bt.getCenterStr() + "\n");
+                bt.requestFocus();
+            }
+        });
         
         // listener to start mix using particleFill method from GasChamber 
 //        unknownComboBox.addActionListener(new ActionListener() {
@@ -877,6 +920,8 @@ public class FreezePointDepression {
 //                bt.requestFocus();
 //            }
 //        });
+        
+        getContentPane().add(pane);
     }
 
     /**
@@ -925,4 +970,39 @@ public class FreezePointDepression {
 //            table.requestFocus();
 //        }
 //    }
+    
+        @Override
+    public void start(){
+
+        knownComboBox.setSelectedIndex(0);
+        unknownComboBox.setSelectedIndex(0);
+        clearTable(table);
+        slider.setValue(35);
+        String choice1 = knownComboBox.getSelectedItem().toString();
+        String choice2 = unknownComboBox.getSelectedItem().toString();
+//        count = 0;
+        table.setEnabled(false);
+
+        //stops editing table and saves current data
+        if (table.isEditing()){
+            table.getCellEditor().stopCellEditing();
+        }
+        table.setValueAt(choice1, 0, 0);
+        table.setValueAt(choice2, 1, 0);
+        table.setValueAt("", 0, 2);
+        table.setValueAt("", 0, 3);
+        table.setValueAt("", 1, 2);
+        table.setValueAt("", 1, 3);
+        correctLabel.setVisible(false);
+        correctLabel2.setVisible(false);
+        incorrectLabel.setVisible(false);
+        incorrectLabel2.setVisible(false);
+        bt.requestFocus();
+    }
+    
+    @Override
+    public void destroy(){
+        bt.destroy();
+        this.destroy();
+    }
 }
