@@ -16,6 +16,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import chemistry.GasChamber;
 import chemistry.MyTableModel;
+import java.awt.font.TextAttribute;
+import java.text.AttributedString;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 public class FreezePointDepression extends JApplet{
 
@@ -42,7 +47,7 @@ public class FreezePointDepression extends JApplet{
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setIconImage(new ImageIcon("src/layout/pscclogo.jpg").getImage());
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
         JApplet applet = new FreezePointDepression();
@@ -75,11 +80,8 @@ public class FreezePointDepression extends JApplet{
                 resetButton, checkAnswerButton;
         JLabel gasDiffuseLabel, enterLabel, knownComboBoxLabel,
                 unknownComboBoxLabel, tempLabel, pauseLabel, sigfigLabel;
-        final JLabel correctLabel, correctLabel2, incorrectLabel, incorrectLabel2;
         JScrollPane jsp;
-        final JComboBox knownComboBox, unknownComboBox;
         JList <String> knownList, unknownList;
-        final JSlider slider;
 
         //make raisedBevel border 
         Border raisedBevel = BorderFactory.createRaisedSoftBevelBorder();
@@ -100,10 +102,10 @@ public class FreezePointDepression extends JApplet{
 
         ///***************************TITLE**************************
         //title label 
-        gasDiffuseLabel = new JLabel("Graham's Law");
+        gasDiffuseLabel = new JLabel("Freeze Point Depression");
 
         //set font for label 
-        gasDiffuseLabel.setFont(new Font("Verdana", Font.BOLD, 50));
+        gasDiffuseLabel.setFont(new Font("Verdana", Font.BOLD, 35));
 
         //set foreground color for label 
         gasDiffuseLabel.setForeground(Color.white);
@@ -152,7 +154,7 @@ public class FreezePointDepression extends JApplet{
         periodicGBC.weightx = 0.5;
 
         //set grid position 
-        periodicGBC.gridx = 9;
+        periodicGBC.gridx = 3;
         periodicGBC.gridy = 0;
 
         //set height and width of grid cell 
@@ -222,7 +224,7 @@ public class FreezePointDepression extends JApplet{
         knownComboPanel.setBorder(raisedBevel);
 
         //create known combo box list label 
-        knownComboBoxLabel = new JLabel("Select First Gas: ");
+        knownComboBoxLabel = new JLabel("# Solutes ");
 
         //set font for label 
         knownComboBoxLabel.setFont(new Font("Verdana", Font.BOLD, 15));
@@ -231,8 +233,8 @@ public class FreezePointDepression extends JApplet{
         knownComboBoxLabel.setForeground(new Color(12, 66, 116));
 
         //create array of list data for JList 
-        String[] knownComboBoxListData = {"Helium (He)",
-            "Neon (Ne)", "Argon (Ar)",};
+        String[] knownComboBoxListData = {"3",
+            "5", "7",};
 
         //create combobox and add list data to it 
         knownComboBox = new JComboBox(knownComboBoxListData);
@@ -247,12 +249,12 @@ public class FreezePointDepression extends JApplet{
 
         //set grid bag layout constraints 
         knownGBC.fill = GridBagConstraints.NONE;
-        knownGBC.insets = new Insets(0, 0, 0, 0);
-        knownGBC.weightx = 0.5;
+        knownGBC.insets = new Insets(0, 0, 0, 80); // 0 25 0 90
+        knownGBC.weightx = 0.0;
         knownGBC.gridwidth = 1;
-        knownGBC.gridx = 0;
+        knownGBC.gridx = 2;
         knownGBC.gridy = 3;
-        knownGBC.ipadx = 30;
+        knownGBC.ipadx = 130; // 200
         knownGBC.ipady = 0;
 
         //add combo box label to panel 
@@ -279,7 +281,7 @@ public class FreezePointDepression extends JApplet{
         unknownComboPanel.setBorder(raisedBevel);
 
         //create known combo box list label
-        unknownComboBoxLabel = new JLabel("Select Second Gas: ");
+        unknownComboBoxLabel = new JLabel("# Solutes ");
 
         //set font for label
         unknownComboBoxLabel.setFont(new Font("Verdana", Font.BOLD, 15));
@@ -288,25 +290,26 @@ public class FreezePointDepression extends JApplet{
         unknownComboBoxLabel.setForeground(new Color(12, 66, 116));
 
         //create array of list data for JList
-        String[] unknownComboBoxListData = {"Helium (He)",
-            "Neon (Ne)", "Argon (Ar)", "Unknown 1", "Unknown 2", "Unknown 3"};
+        String[] unknownComboBoxListData = {"9",
+            "15", "21"};
 
         //create combobox and add data to it
         unknownComboBox = new JComboBox(unknownComboBoxListData);
 
         //create a list
-        unknownList = new JList<String>(unknownComboBoxListData);
+        unknownList = new JList<>(unknownComboBoxListData);
 
         //set visible amount of rows in combo box to 1
         unknownList.setVisibleRowCount(1);
 
         //set grid bag layout constraints
         unknownGBC.fill = GridBagConstraints.NONE;
-        unknownGBC.insets = new Insets(10, 0, 10, 10);
-        unknownGBC.weightx = 0.5;
-        unknownGBC.gridx = 1;
+        unknownGBC.insets = new Insets(0, 40, 0, 150); // 0 0 0 75
+        unknownGBC.weightx = 0.0;
+        unknownGBC.gridwidth = 1;                                               // AEB I added
+        unknownGBC.gridx = 3;
         unknownGBC.gridy = 3;
-        unknownGBC.ipadx = 30;
+        unknownGBC.ipadx = 130; // 30
         unknownGBC.ipady = 0;
 
         //add combo box label to panel
@@ -358,12 +361,12 @@ public class FreezePointDepression extends JApplet{
 
         //set grid bag layout constraints
         tempGBC.fill = GridBagConstraints.HORIZONTAL;
-        tempGBC.insets = new Insets(0, 10, 0, 0);
-        tempGBC.weightx = 150;
+        tempGBC.insets = new Insets(0, 130, 0, 110); // 0 100 0 10
+        tempGBC.weightx = .0;
         tempGBC.gridwidth = 1;
-        tempGBC.gridx = 2;
+        tempGBC.gridx = 0;
         tempGBC.gridy = 3;
-        tempGBC.ipadx = 0;
+        tempGBC.ipadx = 0; // was 60
         tempGBC.ipady = 0;
 
         //add slider to panel
@@ -373,39 +376,39 @@ public class FreezePointDepression extends JApplet{
         //add button to pane
         pane.add(sliderPanel, tempGBC);
 
-        ///****************GO BUTTON********************
-
-        //make grid bag constraints object
-        GridBagConstraints goGBC = new GridBagConstraints();
-
-        //create go button
-        goButton = new JButton("GO");
-
-        //set button color
-        goButton.setBackground(new Color(203, 228, 38));
-
-        //set font for label
-        goButton.setFont(new Font("Verdana", Font.BOLD, 20));
-
-        //set foreground color for label
-        goButton.setForeground(Color.darkGray);
-
-        //set border for button
-        goButton.setBorder(raisedBevel);
-
-        //set grid bag layout constraints
-        goGBC.insets = new Insets(0, 0, 0, 30);
-        goGBC.fill = GridBagConstraints.VERTICAL;
-        goGBC.weightx = 50;
-        goGBC.weighty = 0;
-        goGBC.gridwidth = 2;
-        goGBC.gridx = 9;
-        goGBC.gridy = 3;
-        goGBC.ipadx = 30;
-        goGBC.ipady = 0;
-
-        //add button to pane
-        pane.add(goButton, goGBC);
+//        ///****************GO BUTTON********************
+//
+//        //make grid bag constraints object
+//        GridBagConstraints goGBC = new GridBagConstraints();
+//
+//        //create go button
+//        goButton = new JButton("GO");
+//
+//        //set button color
+//        goButton.setBackground(new Color(203, 228, 38));
+//
+//        //set font for label
+//        goButton.setFont(new Font("Verdana", Font.BOLD, 20));
+//
+//        //set foreground color for label
+//        goButton.setForeground(Color.darkGray);
+//
+//        //set border for button
+//        goButton.setBorder(raisedBevel);
+//
+//        //set grid bag layout constraints
+//        goGBC.insets = new Insets(0, 0, 0, 30);
+//        goGBC.fill = GridBagConstraints.VERTICAL;
+//        goGBC.weightx = 50;
+//        goGBC.weighty = 0;
+//        goGBC.gridwidth = 2;
+//        goGBC.gridx = 9;
+//        goGBC.gridy = 3;
+//        goGBC.ipadx = 30;
+//        goGBC.ipady = 0;
+//
+//        //add button to pane
+//        pane.add(goButton, goGBC);
 
         ///****************TABLE**********************
 
@@ -429,8 +432,8 @@ public class FreezePointDepression extends JApplet{
         enterLabel.setForeground(Color.white);
 
         //create arrays for column headings and table data
-        String[] colHeading = {"Chosen Molecules", "Time (seconds)", "Rate (meters/second)", "Molecular Weight (MW)"};
-        String[][] data = {{"", "", "", ""},{"", "", "", ""}};
+        String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium", "Beaker 3: Water/Unknown"};
+        String[][] data = {{"", "", "", ""},{"", "", "", ""},{"", "", "", ""},{"", "", "", ""}};
 
         //create table
         table = new JTable(new MyTableModel(data, colHeading));
@@ -459,14 +462,15 @@ public class FreezePointDepression extends JApplet{
 
         //set grid bag layout constraints
         tableGBC.fill = GridBagConstraints.BOTH;
-        tableGBC.insets = new Insets(10, 10, 10, 10);
+        tableGBC.insets = new Insets(0, 10, 0, 17); // 50 10 100 17
         tableGBC.weightx = 0;
         tableGBC.weighty = 0;
         tableGBC.gridx = 0;
         tableGBC.gridy = 5;
         tableGBC.gridwidth = 15;
-        tableGBC.ipadx = 50;
-        tableGBC.ipady = 30;
+        tableGBC.gridheight = 1;
+        tableGBC.ipadx = 50; // 50
+        tableGBC.ipady = 65; // 65
 
         //add label to panel
         tablePanel.add(enterLabel, BorderLayout.NORTH);
@@ -477,11 +481,34 @@ public class FreezePointDepression extends JApplet{
         //add panel to pane
         pane.add(tablePanel, tableGBC);
 
-        String choice1 = knownComboBox.getSelectedItem().toString();
-        String choice2 = unknownComboBox.getSelectedItem().toString();
+//        String choice1 = knownComboBox.getSelectedItem().toString();
+//        String choice2 = unknownComboBox.getSelectedItem().toString();
+        
+        Dimension tableDim = new Dimension(970, 65); 
+        table.setPreferredSize(tableDim);
+        
+        //set columns 1 - 3 to centered text
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);  
+        for(int i = 1; i < 4; i++){
+            TableColumn col = table.getColumnModel().getColumn(i); 
+            col.setCellRenderer(dtcr); 
+        }       
+        
+        //set values for column labels - col(0)
+        String delta = "\u0394Tb";
+        String degree = "i";
+        String molality = "m";        
+        String water = "Kb";
+        String waterFreeze = "1.86";
 
-        table.setValueAt(choice1, 0, 0);
-        table.setValueAt(choice2, 1, 0);
+        table.setValueAt(delta, 0, 0);
+        table.setValueAt(degree, 1, 0);
+        table.setValueAt(molality, 2, 0);
+        table.setValueAt(water, 3, 0);
+        table.setValueAt(waterFreeze, 3, 1);
+        table.setValueAt(waterFreeze, 3, 2);
+        table.setValueAt(waterFreeze, 3, 3);
 
         ///*****************CORRECT AND INCORRECT LABELS******************
 
@@ -552,8 +579,8 @@ public class FreezePointDepression extends JApplet{
         pauseLabelPanel.setBackground(new Color(12, 66, 116));
         
         //make pauseLabel
-        pauseLabel = new JLabel("**Pause and play the simulation at any time"
-                + " using spacebar.");
+        pauseLabel = new JLabel("**Pause and play the simulation"
+                + " with spacebar or mouseclick in gray box.");
         sigfigLabel = new JLabel("***Enter rate using 4 significant figures."
                 + "  Enter molecular weight using 2 significant figures.");
 
@@ -597,7 +624,7 @@ public class FreezePointDepression extends JApplet{
         answerGBC.anchor = GridBagConstraints.CENTER;
         answerGBC.insets = new Insets(0, 0, 0, 0);
         answerGBC.weightx = 1;
-        answerGBC.gridx = 9;
+        answerGBC.gridx = 3;
         answerGBC.gridy = 7;
         answerGBC.gridwidth = 2;
         answerGBC.ipadx = 0;
@@ -671,13 +698,13 @@ public class FreezePointDepression extends JApplet{
         });
         
         // listener to open the gate and start the race 
-        goButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-//                bt.setGateOpen(true);
-//                bt.requestFocus();
-            }
-        });
+//        goButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+////                bt.setGateOpen(true);
+////                bt.requestFocus();
+//            }
+//        });
         
         //create a listener for the help button 
         helpButton.addActionListener(new ActionListener() {
