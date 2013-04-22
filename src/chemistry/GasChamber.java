@@ -498,6 +498,9 @@ public class GasChamber extends PApplet {
 
     @Override
     public void keyPressed() {
+//        if(key == ESC){
+//            key = 0;
+//        }
         bStop = !bStop;
         if (bStop) {
             noLoop();
@@ -505,6 +508,16 @@ public class GasChamber extends PApplet {
             loop();
         }
     }
+    
+//    @Override
+//    public void mousePressed() {
+//        bStop = !bStop;
+//        if (bStop) {
+//            noLoop();
+//        } else {
+//            loop();
+//        }
+//    }
 
     public float getCenterStr() {
         return centerStr;
