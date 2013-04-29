@@ -5,31 +5,29 @@
  */
 package chemistry;
 
-import chemistry.Element;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.AttributedString;
 import java.text.DecimalFormat;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import chemistry.GasChamber;
-import chemistry.MyTableModel;
-import java.awt.font.TextAttribute;
-import java.text.AttributedString;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 public class FreezePointDepression extends JApplet{
 
     private final static boolean shouldFill = true;
     private final static boolean RIGHT_TO_LEFT = false;
-    private static int height, width, count = 0, box1 = 0, box2 = 0;
+    private final String DELTA = "<html>\u0394T<sub>f</sub></html>";
+    private final String DEGREE = "i";
+    private final String MOLALITY = "m";        
+    private final String WATER_CONSTANT = "<html>K<sub>f</sub></html>";
+    private final String WATER_FREEZE = "1.86\u2070C kg/mol";
+    private static int height, width;
     private static String periodic, help, helpContent;
-    private static double time1, time2;
-    private static float rate1, rate2, mw1, mw2;
     protected static JTable table;
     private static GasChamber bt = new GasChamber();
     private static JDialog dialog, helpDialog;
@@ -47,7 +45,7 @@ public class FreezePointDepression extends JApplet{
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setIconImage(new ImageIcon("src/layout/pscclogo.jpg").getImage());
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
         JApplet applet = new FreezePointDepression();
@@ -79,7 +77,7 @@ public class FreezePointDepression extends JApplet{
         JButton periodButton, helpButton, goButton,
                 resetButton, checkAnswerButton;
         JLabel gasDiffuseLabel, enterLabel, knownComboBoxLabel,
-                unknownComboBoxLabel, tempLabel, pauseLabel, sigfigLabel;
+                unknownComboBoxLabel, tempLabel, pauseLabel, sigfigLabel, sigfigLabel2;
         JScrollPane jsp;
         JList <String> knownList, unknownList;
 
@@ -140,15 +138,15 @@ public class FreezePointDepression extends JApplet{
         periodHelpPanel.setBorder(raisedBevel);
 
         //make buttons 
-        periodButton = new JButton("Periodic Table");
+        periodButton = new JButton("Assistance");
         helpButton = new JButton("Help");
 
         //set grid bag layout constraints 
         //set fill 
         periodicGBC.fill = GridBagConstraints.HORIZONTAL;
 
-        //set padding 
-        periodicGBC.insets = new Insets(0, 0, 0, 0);
+        //set padding - this one is good to see how other insets work, the green background makes it easy to see changes
+        periodicGBC.insets = new Insets(0, 150, 0, 20);
 
         //set weight 
         periodicGBC.weightx = 0.5;
@@ -224,7 +222,7 @@ public class FreezePointDepression extends JApplet{
         knownComboPanel.setBorder(raisedBevel);
 
         //create known combo box list label 
-        knownComboBoxLabel = new JLabel("# Solutes ");
+        knownComboBoxLabel = new JLabel("<html>Mols<sub> </sub>NaCl</html>");
 
         //set font for label 
         knownComboBoxLabel.setFont(new Font("Verdana", Font.BOLD, 15));
@@ -233,14 +231,14 @@ public class FreezePointDepression extends JApplet{
         knownComboBoxLabel.setForeground(new Color(12, 66, 116));
 
         //create array of list data for JList 
-        String[] knownComboBoxListData = {"3",
-            "5", "7",};
+        String[] knownComboBoxListData = {"0.912 mols",
+            "1.418 mols", "2.160 mols",};
 
         //create combobox and add list data to it 
         knownComboBox = new JComboBox(knownComboBoxListData);
 
         //create a courses list 
-        knownList = new JList<String>(knownComboBoxListData);
+        knownList = new JList<>(knownComboBoxListData);
 
         //set visible amount of rows in JList to 1 
         knownList.setVisibleRowCount(1);
@@ -279,9 +277,9 @@ public class FreezePointDepression extends JApplet{
 
         //set border for button 
         unknownComboPanel.setBorder(raisedBevel);
-
+                
         //create known combo box list label
-        unknownComboBoxLabel = new JLabel("# Solutes ");
+        unknownComboBoxLabel = new JLabel("<html>Mols Li<sub>2</sub>S</html>");
 
         //set font for label
         unknownComboBoxLabel.setFont(new Font("Verdana", Font.BOLD, 15));
@@ -290,8 +288,8 @@ public class FreezePointDepression extends JApplet{
         unknownComboBoxLabel.setForeground(new Color(12, 66, 116));
 
         //create array of list data for JList
-        String[] unknownComboBoxListData = {"9",
-            "15", "21"};
+        String[] unknownComboBoxListData = {"1.803 mols",
+            "2.031 mols", "2.633 mols"};
 
         //create combobox and add data to it
         unknownComboBox = new JComboBox(unknownComboBoxListData);
@@ -352,10 +350,10 @@ public class FreezePointDepression extends JApplet{
 
         //set slider constraints
         slider.setSize(100, 20);
-        slider.setValue(35);
+        slider.setValue(40);
         slider.setMinimum(-10);
-        slider.setMaximum(80);
-        slider.setMajorTickSpacing(25);
+        slider.setMaximum(90);
+        slider.setMajorTickSpacing(10);
         slider.setMinorTickSpacing(5);
         slider.setPaintTicks(true);
 
@@ -423,7 +421,7 @@ public class FreezePointDepression extends JApplet{
 
         //create label for table
         enterLabel = new JLabel("Use the data in the table to "
-                + "compute the Rate and Molecular Weight...");
+                + "compute the Molality...");
 
         //set font for label
         enterLabel.setFont(new Font("Verdana", Font.BOLD, 20));
@@ -433,25 +431,27 @@ public class FreezePointDepression extends JApplet{
 
         //create arrays for column headings and table data
         String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium", "Beaker 3: Water/Unknown"};
-        String[][] data = {{"", "", "", ""},{"", "", "", ""},{"", "", "", ""},{"", "", "", ""}};
+        String[][] data = {{"<html>\u0394T<sub>f</sub></html>", "", "", ""},{"i", "", "", ""},{"m", "", "", ""},{"<html>K<sub>f</sub></html>", "", "", ""}};
 
         //create table
         table = new JTable(new MyTableModel(data, colHeading));
+        
+        table.setRowHeight(20);
         
         //keep columns from being moved around
         table.getTableHeader().setReorderingAllowed(false);
         
         //set sizes of columns then keep them from being resized
         for(int i = 0; i < 4; i++){
-            table.getColumnModel().getColumn(i).setMinWidth(242);
-            table.getColumnModel().getColumn(i).setMaxWidth(242);
+            table.getColumnModel().getColumn(i).setMinWidth(243);
+            table.getColumnModel().getColumn(i).setMaxWidth(243);
         
         }
         table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 
         //make tool tip
-        table.setToolTipText("Calculate rate and molecular weight using "
-                + "Graham's Law and insert into table");
+        table.setToolTipText("Calculate molality using "
+                + "Freeze Point Depression and insert into table");
 
         //make table not enabled to be edited
         table.setEnabled(false);
@@ -462,7 +462,7 @@ public class FreezePointDepression extends JApplet{
 
         //set grid bag layout constraints
         tableGBC.fill = GridBagConstraints.BOTH;
-        tableGBC.insets = new Insets(0, 10, 0, 17); // 50 10 100 17
+        tableGBC.insets = new Insets(0, 33, 0, 37); // 50 10 100 17
         tableGBC.weightx = 0;
         tableGBC.weighty = 0;
         tableGBC.gridx = 0;
@@ -470,7 +470,7 @@ public class FreezePointDepression extends JApplet{
         tableGBC.gridwidth = 15;
         tableGBC.gridheight = 1;
         tableGBC.ipadx = 50; // 50
-        tableGBC.ipady = 65; // 65
+        tableGBC.ipady = 78; // 78
 
         //add label to panel
         tablePanel.add(enterLabel, BorderLayout.NORTH);
@@ -481,39 +481,32 @@ public class FreezePointDepression extends JApplet{
         //add panel to pane
         pane.add(tablePanel, tableGBC);
 
-//        String choice1 = knownComboBox.getSelectedItem().toString();
-//        String choice2 = unknownComboBox.getSelectedItem().toString();
-        
-        Dimension tableDim = new Dimension(970, 65); 
+        //add dimensions for table, need to be changed with ipadx and ipady
+        Dimension tableDim = new Dimension(970, 78); // 970, 78
         table.setPreferredSize(tableDim);
         
-        //set columns 1 - 3 to centered text
+        //set columns to centered text
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();    
         dtcr.setHorizontalAlignment(SwingConstants.CENTER);  
-        for(int i = 1; i < 4; i++){
+        for(int i = 0; i < 4; i++){
             TableColumn col = table.getColumnModel().getColumn(i); 
             col.setCellRenderer(dtcr); 
         }       
         
-        //set values for column labels - col(0)
-        String delta = "\u0394Tb";
-        String degree = "i";
-        String molality = "m";        
-        String water = "Kb";
-        String waterFreeze = "1.86";
-
-        table.setValueAt(delta, 0, 0);
-        table.setValueAt(degree, 1, 0);
-        table.setValueAt(molality, 2, 0);
-        table.setValueAt(water, 3, 0);
-        table.setValueAt(waterFreeze, 3, 1);
-        table.setValueAt(waterFreeze, 3, 2);
-        table.setValueAt(waterFreeze, 3, 3);
+        //set default values of cells with numbers
+        table.setValueAt(0, 0, 1);
+        table.setValueAt(0, 1, 1);
+        table.setValueAt(0, 2, 1);
+        table.setValueAt(-7.54, 0, 2);
+        table.setValueAt(-22.36, 0, 3);
+        table.setValueAt(WATER_FREEZE, 3, 1);
+        table.setValueAt(WATER_FREEZE, 3, 2);
+        table.setValueAt(WATER_FREEZE, 3, 3);
 
         ///*****************CORRECT AND INCORRECT LABELS******************
 
-        correctLabel = new JLabel("1st Row Correct");
-        correctLabel2 = new JLabel("2nd Row Correct");
+        correctLabel = new JLabel("Beaker 2 Correct");
+        correctLabel2 = new JLabel("Beaker 3 Correct");
         //make grid bag constraints object
         GridBagConstraints correctGBC = new GridBagConstraints();
 
@@ -526,23 +519,23 @@ public class FreezePointDepression extends JApplet{
         correctPanel.setBackground(new Color(12, 66, 116));
 
         //make correct labels
-        correctLabel.setFont(new Font("Verdana", Font.BOLD, 20));
+        correctLabel.setFont(new Font("Verdana", Font.BOLD, 16));
         correctLabel.setForeground(Color.GREEN);
         correctLabel.setVisible(false);
 
-        correctLabel2.setFont(new Font("Verdana", Font.BOLD, 20));
+        correctLabel2.setFont(new Font("Verdana", Font.BOLD, 16));
         correctLabel2.setForeground(Color.GREEN);
         correctLabel2.setVisible(false);
 
         //make incorrect labels
-        incorrectLabel = new JLabel("1st Row Incorrect");
-        incorrectLabel2 = new JLabel("2nd Row Incorrect");
+        incorrectLabel = new JLabel("Beaker 2 Incorrect");
+        incorrectLabel2 = new JLabel("Beaker 3 Incorrect");
 
-        incorrectLabel.setFont(new Font("Verdana", Font.BOLD, 20));
+        incorrectLabel.setFont(new Font("Verdana", Font.BOLD, 16));
         incorrectLabel.setForeground(Color.RED);
         incorrectLabel.setVisible(false);
 
-        incorrectLabel2.setFont(new Font("Verdana", Font.BOLD, 20));
+        incorrectLabel2.setFont(new Font("Verdana", Font.BOLD, 16));
         incorrectLabel2.setForeground(Color.RED);
         incorrectLabel2.setVisible(false);
 
@@ -579,14 +572,15 @@ public class FreezePointDepression extends JApplet{
         pauseLabelPanel.setBackground(new Color(12, 66, 116));
         
         //make pauseLabel
-        pauseLabel = new JLabel("**Pause and play the simulation"
+        pauseLabel = new JLabel("**Pause/Play simulation"
                 + " with spacebar or mouseclick in gray box.");
-        sigfigLabel = new JLabel("***Enter rate using 4 significant figures."
-                + "  Enter molecular weight using 2 significant figures.");
+        sigfigLabel = new JLabel("***Enter Molality using 3 significant figures.");
+        sigfigLabel2 = new JLabel("***Enter all other values using 4 significant figures.");
 
         //set font color to white
         pauseLabel.setForeground(Color.WHITE);
         sigfigLabel.setForeground(Color.WHITE);
+        sigfigLabel2.setForeground(Color.WHITE);
 
         //set grid bag layout constraints
         pauseGBC.anchor = GridBagConstraints.EAST;
@@ -600,7 +594,8 @@ public class FreezePointDepression extends JApplet{
 
         //add pause and sigfig labels to pause panel
         pauseLabelPanel.add(pauseLabel,BorderLayout.NORTH);
-        pauseLabelPanel.add(sigfigLabel,BorderLayout.SOUTH);
+        pauseLabelPanel.add(sigfigLabel,BorderLayout.CENTER);
+        pauseLabelPanel.add(sigfigLabel2,BorderLayout.SOUTH);
         
         //add pauseLabel to pane
         pane.add(pauseLabelPanel, pauseGBC);
@@ -650,49 +645,76 @@ public class FreezePointDepression extends JApplet{
                 // correct values
                 try{
                     
-                rate1 = Float.parseFloat(table.getValueAt(0, 2).toString());
-                rate2 = Float.parseFloat(table.getValueAt(1, 2).toString());
-                mw1 = Float.parseFloat(table.getValueAt(0, 3).toString());
-                mw2 = Float.parseFloat(table.getValueAt(1, 3).toString());
                 
                 correctLabel.setVisible(false);
                 correctLabel2.setVisible(false);
                 incorrectLabel.setVisible(false);
                 incorrectLabel2.setVisible(false);
-                               
-//                if ((rate1 < ((bt.getVel1() * 6.343) * 1.002) && rate1 > ((bt.getVel1() * 6.343) * .998)) && ((mw1 < (bt.getMw1() * 1.02) && mw1 > (bt.getMw1() * .98)))) {
-//                    correctLabel.setVisible(true);
-//                } else {
-//                    incorrectLabel.setVisible(true);
-//                }
-//                if ((rate2 < ((bt.getVel2() * 6.343) * 1.002) && rate2 > ((bt.getVel2() * 6.343) * .998)) && ((mw2 < (bt.getMw2() * 1.02) && mw2 > (bt.getMw2() * .98)))) {
-//                    correctLabel2.setVisible(true);
-//                } else {
-//                    incorrectLabel2.setVisible(true);
-//                }
+                float answer2 = 0f, answer3 = 0f;
+                float mol2a = 2.0268f;
+                float mol2b = 3.1532f;
+                float mol2c = 4.8011f;
+                float vhf2 = 2;
+                float mol3a = 4.007f;
+                float mol3b = 4.513f;
+                float mol3c = 5.853f;
+                float vhf3 = 3;
+                float cell_0_2 = Float.parseFloat(table.getValueAt(0, 2).toString());
+                float cell_0_3 = Float.parseFloat(table.getValueAt(0, 3).toString());
+                float cell_1_2, cell_1_3, cell_2_2, cell_2_3;
 
-//                JOptionPane.showMessageDialog(null, "The Rate you entered "
-//                        + "for selection one, " + table.getValueAt(0, 0)
-//                        + ", is: " + rate1 + "   the answer is: " + format.format(bt.getVel1() * 6.34276)
-//                        + "\nThe MW you entered is: " + mw1 + " the answer is: "
-//                        + (bt.getMw1() * 1.000) + "\nThe Rate you entered for selection "
-//                        + "two, " + table.getValueAt(1, 0) + ", is: " + rate2
-//                        + "   the answer is: " + format.format(bt.getVel2() * 6.34276)
-//                        + "\nThe MW you entered is: " + mw2 + " the answer is: "
-//                        + (bt.getMw2() * 1.000));
+                cell_1_2 = Float.parseFloat(table.getValueAt(1, 2).toString());
+                cell_1_3 = Float.parseFloat(table.getValueAt(1, 3).toString());
+                cell_2_2 = Float.parseFloat(table.getValueAt(2, 2).toString());
+                cell_2_3 = Float.parseFloat(table.getValueAt(2, 3).toString());
+                
+                
+                if((cell_0_2 == -7.54f && cell_1_2 == vhf2 && cell_2_2 == mol2a) || (cell_0_2 == -11.73f && cell_1_2 == vhf2 && cell_2_2 == mol2b) || (cell_0_2 == -17.87f && cell_1_2 == vhf2 && cell_2_2 == mol2c)){
+                    correctLabel.setVisible(true);
+                }else{
+                    incorrectLabel.setVisible(true);
+                }
+                
+                if((cell_0_3 == -22.36f && cell_1_3 == vhf3 && cell_2_3 == mol3a) || (cell_0_3 == -25.18f && cell_1_3 == vhf3 && cell_2_3 == mol3b) || (cell_0_3 == -32.67f && cell_1_3 == vhf3 && cell_2_3 == mol3c)){
+                    correctLabel2.setVisible(true);
+                }else{
+                    incorrectLabel2.setVisible(true);
+                }
+                
+                if(cell_0_2 == -7.54f){
+                    answer2 = mol2a;
+                }else if(cell_0_2 == -11.73f){
+                    answer2 = mol2b;
+                }else if(cell_0_2 == -17.87f){
+                    answer2 = mol2c;
+                }
+
+                if(cell_0_3 == -22.36f){
+                    answer3 = mol3a;
+                }else if(cell_0_3 == -25.18f){
+                    answer3 = mol3b;
+                }else if(cell_0_3 == -32.67f){
+                    answer3 = mol3c;
+                }
+                               
+                JOptionPane.showMessageDialog(null, "The van't hoff factor (i) you entered "
+                        + "for Beaker 2, is: " + cell_1_2 + "   the answer is: " + vhf2
+                        + "\nThe Molality you entered is: " + cell_2_2 + " the answer is: " + answer2
+                        + "\nThe van't hoff factor you entered for selection "
+                        + "Beaker 3, is: " + cell_1_3  + " the answer is: " + vhf3
+                        + "\nThe Molality you entered is: " + cell_2_3 + " the answer is: " + answer3);
                 
                 }
                 
-                catch(NumberFormatException nfe){
+                catch(NumberFormatException | NullPointerException nfe){
                     
-                    JOptionPane.showMessageDialog(null, "Please enter a value"
-                            + " in all rate and molecular weight table cells"
+                    JOptionPane.showMessageDialog(null, "Please enter 'i' and 'm'"
+                            + " values for Beakers 2 and 3"
                             + " before clicking check answer button.","Answers",JOptionPane.INFORMATION_MESSAGE);
                     
                 }
-                
 
-                //focus on start/race box
+                //focus on beaker box
                 bt.requestFocus();
             }
         });
@@ -799,24 +821,34 @@ public class FreezePointDepression extends JApplet{
         });
         
         //listener to start mix using particleFill method from GasChamber  
-//        knownComboBox.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                if(!Element.isGateOpen()){
-//                //set box1 to get the selected index 
-//                box1 = knownComboBox.getSelectedIndex();
-//                bt.particleFill(box1, box2);
-//
-//                //declares choice1 var. and sets value to selected item 
-//                String choice1 = knownComboBox.getSelectedItem().toString();
-//
-//                //sets value at 0,0 in table to choice1 
-//                table.setValueAt(choice1, 0, 0);
-//                
-//                }
-//                bt.requestFocus();
-//            }
-//        });
+        knownComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                int solutes = 0;
+                
+                switch(knownComboBox.getSelectedIndex()){
+                    case 0:
+                        solutes = 3;
+                        table.setValueAt(-7.54, 0, 2);
+                        break;
+                    case 1:
+                        solutes = 5;
+                        table.setValueAt(-11.73, 0, 2);
+                        break;
+                    case 2:
+                        solutes = 7;
+                        table.setValueAt(-17.87, 0, 2);
+                }
+                
+                table.setValueAt("", 1, 2);
+                table.setValueAt("", 2, 2);
+                
+                bt.setNumSolutes1(solutes);
+
+                bt.requestFocus();
+            }
+        });
         
         //create a listener for the periodic button 
         periodButton.addActionListener(new ActionListener() {
@@ -825,10 +857,10 @@ public class FreezePointDepression extends JApplet{
                 
                 bt.requestFocus();
                 //make icon object and reference the periodic table image 
-                final Icon icon = new javax.swing.ImageIcon(getClass().getResource("periodictablesmall.png"));
+                final Icon icon = new javax.swing.ImageIcon(getClass().getResource("FreezePointDepressionAssistance.png"));
 
                 //make string title variable 
-                periodic = "Periodic Table";
+                periodic = "Free Point Depression Assistance";
 
                 //make width and height the icon's width and height 
                 width = icon.getIconWidth();
@@ -868,40 +900,43 @@ public class FreezePointDepression extends JApplet{
         });
         
         // listener for reset button 
-//        resetButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                bt.setGateOpen(false);
-//                knownComboBox.setSelectedIndex(0);
-//                unknownComboBox.setSelectedIndex(0);
-//                clearTable(table);
-//                Element.setIsWinner(false);
-//                Element.setIsSecondWinner(false);
-//                slider.setValue(85);
-//                bt.setFRate(85);
-//                String choice1 = knownComboBox.getSelectedItem().toString();
-//                String choice2 = unknownComboBox.getSelectedItem().toString();
-//                count = 0;
-//                table.setEnabled(false);
-//                t = 7.8829 + Math.random() * .0002;  
-//                
-//                //stops editing table and saves current data
-//                if (table.isEditing()){
-//                    table.getCellEditor().stopCellEditing();
-//                }
-//                table.setValueAt(choice1, 0, 0);
-//                table.setValueAt(choice2, 1, 0);
-//                table.setValueAt("", 0, 2);
-//                table.setValueAt("", 0, 3);
-//                table.setValueAt("", 1, 2);
-//                table.setValueAt("", 1, 3);
-//                correctLabel.setVisible(false);
-//                correctLabel2.setVisible(false);
-//                incorrectLabel.setVisible(false);
-//                incorrectLabel2.setVisible(false);
-//                bt.requestFocus();
-//            }
-//        });
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                knownComboBox.setSelectedIndex(0);
+                unknownComboBox.setSelectedIndex(0);
+                clearTable(table);
+                slider.setValue(40);
+                table.setEnabled(false);
+
+                //stops editing table and saves current data
+                if (table.isEditing()){
+                    table.getCellEditor().stopCellEditing();
+                }
+                table.setValueAt(DELTA, 0, 0);
+                table.setValueAt(DEGREE, 1, 0);
+                table.setValueAt(MOLALITY, 2, 0);
+                table.setValueAt(WATER_CONSTANT, 3, 0);
+                table.setValueAt(0, 0, 1);
+                table.setValueAt(0, 1, 1);
+                table.setValueAt(0, 2, 1);
+                table.setValueAt(-7.54, 0, 2);
+                table.setValueAt(-22.36, 0, 3);
+                table.setValueAt(WATER_FREEZE, 3, 1);
+                table.setValueAt(WATER_FREEZE, 3, 2);
+                table.setValueAt(WATER_FREEZE, 3, 3);
+                table.setValueAt("", 1, 2);
+                table.setValueAt("", 1, 3);
+                correctLabel.setVisible(false);
+                correctLabel2.setVisible(false);
+                incorrectLabel.setVisible(false);
+                incorrectLabel2.setVisible(false);
+                bt.loop();
+                bt.requestFocus();
+                
+            }
+        });
         
         // listener to update frameRate in GasChamber 
         slider.addChangeListener(new ChangeListener() {
@@ -910,17 +945,27 @@ public class FreezePointDepression extends JApplet{
                 int value = slider.getValue();
                 float cent = (float)Math.sqrt((((value - 90) * -1) / 100.0f) * (((value - 90) * -1) / 100.0f) / 200);
                 
-                float t = Math.abs((value - 90) / 50.0f);
+                float t = Math.abs((value - 100) / 100.0f);
                 
                 cent *= t;
                 cent -= .02f;
                 
                 float flit = ((value + 20) / 100.0f);
+                
+                if(flit < .2){
+                    knownComboBox.setEnabled(false);
+                    unknownComboBox.setEnabled(false);
+                }else{
+                    knownComboBox.setEnabled(true);
+                    unknownComboBox.setEnabled(true);
+                    bt.loop();
+                }
+                
                 float negStr = (1 - flit) * 4f;
 //                bt.setFRate(value);
                 bt.setCenterStr(cent);
                 bt.setFlit(flit);
-                bt.setNegStr(negStr);
+                bt.setNegStr(negStr);                
                 System.out.println("Value: " + value);
                 System.out.println("NegStr: " + negStr);
                 System.out.println("Flit: " + flit);
@@ -930,9 +975,33 @@ public class FreezePointDepression extends JApplet{
         });
         
         // listener to start mix using particleFill method from GasChamber 
-//        unknownComboBox.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
+        unknownComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                int solutes = 0;
+                
+                
+                switch(unknownComboBox.getSelectedIndex()){
+                    case 0:
+                        solutes = 9;
+                        table.setValueAt(-22.36, 0, 3);
+                        break;
+                    case 1:
+                        solutes = 11;
+                        table.setValueAt(-25.18, 0, 3);
+                        break;
+                    case 2:
+                        solutes = 13;
+                        table.setValueAt(-32.67, 0, 3);
+                }
+                
+                
+                table.setValueAt("", 1, 3);
+                table.setValueAt("", 2, 3);
+                
+                bt.setNumSolutes2(solutes);
+                
 //                if(!Element.isGateOpen()){
 //                //set box2 to get the selected index
 //                box2 = unknownComboBox.getSelectedIndex();
@@ -944,9 +1013,9 @@ public class FreezePointDepression extends JApplet{
 //                table.setValueAt(choice2, 1, 0);
 //                
 //                }
-//                bt.requestFocus();
-//            }
-//        });
+                bt.requestFocus();
+            }
+        });
         
         getContentPane().add(pane);
     }
@@ -962,41 +1031,6 @@ public class FreezePointDepression extends JApplet{
         }
     }
     
-    /**
-     * set time values in table after particles have passed finish line 
-     */
-//    public void setTableTime1(int id){
-//        
-//        
-//        if(id == 0){
-//            // pulls value of time1 from GasChamber  
-//            time1 = GasChamber.getTime1() * t;  
-//            // sets value at 0,1 in table to time1  
-//            table.setValueAt(fiveSF.format(time1), 0, 1);
-//            count++;
-//        }
-//        else{
-//            // pulls value of time2 from GasChamber   
-//            time2 = GasChamber.getTime2() * t;
-//            // sets value at 1,1 in table to time2 
-//            table.setValueAt(fiveSF.format(time2), 1, 1);
-//            count++;
-//        }
-//        
-//        if(count == 2){
-//            //enable table
-//            table.setEnabled(true);
-//            
-//            //makes the first two cells in each row non-editable
-//            table.isCellEditable(0, 0);
-//            table.isCellEditable(0, 1);
-//            table.isCellEditable(1, 0);
-//            table.isCellEditable(1, 1);
-//            
-//            //set focus to table
-//            table.requestFocus();
-//        }
-//    }
     
         @Override
     public void start(){
@@ -1004,20 +1038,25 @@ public class FreezePointDepression extends JApplet{
         knownComboBox.setSelectedIndex(0);
         unknownComboBox.setSelectedIndex(0);
         clearTable(table);
-        slider.setValue(35);
-        String choice1 = knownComboBox.getSelectedItem().toString();
-        String choice2 = unknownComboBox.getSelectedItem().toString();
-//        count = 0;
+        slider.setValue(40);
         table.setEnabled(false);
 
         //stops editing table and saves current data
         if (table.isEditing()){
             table.getCellEditor().stopCellEditing();
         }
-        table.setValueAt(choice1, 0, 0);
-        table.setValueAt(choice2, 1, 0);
-        table.setValueAt("", 0, 2);
-        table.setValueAt("", 0, 3);
+        table.setValueAt(DELTA, 0, 0);
+        table.setValueAt(DEGREE, 1, 0);
+        table.setValueAt(MOLALITY, 2, 0);
+        table.setValueAt(WATER_CONSTANT, 3, 0);
+        table.setValueAt(0, 0, 1);
+        table.setValueAt(0, 1, 1);
+        table.setValueAt(0, 2, 1);
+        table.setValueAt(-7.54, 0, 2);
+        table.setValueAt(-22.36, 0, 3);
+        table.setValueAt(WATER_FREEZE, 3, 1);
+        table.setValueAt(WATER_FREEZE, 3, 2);
+        table.setValueAt(WATER_FREEZE, 3, 3);
         table.setValueAt("", 1, 2);
         table.setValueAt("", 1, 3);
         correctLabel.setVisible(false);
@@ -1031,5 +1070,19 @@ public class FreezePointDepression extends JApplet{
     public void destroy(){
         bt.destroy();
         this.destroy();
+    }
+    
+    public void setTableEditable(){
+        table.setEnabled(true);
+        
+        table.isCellEditable(1, 2);
+        table.isCellEditable(1, 3);
+        table.isCellEditable(2, 2);
+        table.isCellEditable(2, 3);
+
+    }
+    
+    public void setTableNotEditable(){
+        table.setEnabled(false);
     }
 }
