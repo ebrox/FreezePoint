@@ -27,7 +27,7 @@ public class FreezePointDepression extends JApplet{
     private final String WATER_CONSTANT = "<html>K<sub>f</sub></html>";
     private final String WATER_FREEZE = "1.86\u2070C kg/mol";
     private static int height, width;
-    private static String periodic, help, helpContent;
+    private static String periodic, help, helpContent, beaker1 = "0\u2070C", beaker2 = "-7.54\u2070C", beaker3 = "-22.36\u2070C";
     protected static JTable table;
     private static GasChamber bt = new GasChamber();
     private static JDialog dialog, helpDialog;
@@ -74,7 +74,7 @@ public class FreezePointDepression extends JApplet{
         JPanel periodHelpPanel, knownComboPanel, unknownComboPanel, sliderPanel,
                 tablePanel, boxPanel, checkResetButtonPanel, resultPanel, 
                 correctPanel, pauseLabelPanel;
-        JButton periodButton, helpButton, goButton,
+        JButton assistButton, helpButton, goButton,
                 resetButton, checkAnswerButton;
         JLabel gasDiffuseLabel, enterLabel, knownComboBoxLabel,
                 unknownComboBoxLabel, tempLabel, pauseLabel, sigfigLabel, sigfigLabel2;
@@ -138,7 +138,7 @@ public class FreezePointDepression extends JApplet{
         periodHelpPanel.setBorder(raisedBevel);
 
         //make buttons 
-        periodButton = new JButton("Assistance");
+        assistButton = new JButton("Assistance");
         helpButton = new JButton("Help");
 
         //set grid bag layout constraints 
@@ -163,7 +163,7 @@ public class FreezePointDepression extends JApplet{
         periodicGBC.anchor = GridBagConstraints.EAST;
 
         //add buttons to panel 
-        periodHelpPanel.add(periodButton);
+        periodHelpPanel.add(assistButton);
         periodHelpPanel.add(helpButton);
 
         //add panel and contraints to pane 
@@ -421,7 +421,7 @@ public class FreezePointDepression extends JApplet{
 
         //create label for table
         enterLabel = new JLabel("Use the data in the table to "
-                + "compute the Molality...");
+                + "compute Van't Hoff Factor and Molality...");
 
         //set font for label
         enterLabel.setFont(new Font("Verdana", Font.BOLD, 20));
@@ -430,7 +430,7 @@ public class FreezePointDepression extends JApplet{
         enterLabel.setForeground(Color.white);
 
         //create arrays for column headings and table data
-        String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium", "Beaker 3: Water/Unknown"};
+        String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium", "Beaker 3: Water/Lithium Sulfide"};
         String[][] data = {{"<html>\u0394T<sub>f</sub></html>", "", "", ""},{"i", "", "", ""},{"m", "", "", ""},{"<html>K<sub>f</sub></html>", "", "", ""}};
 
         //create table
@@ -450,8 +450,8 @@ public class FreezePointDepression extends JApplet{
         table.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 
         //make tool tip
-        table.setToolTipText("Calculate molality using "
-                + "Freeze Point Depression and insert into table");
+        table.setToolTipText("Calculate van't hoff factor and molality "
+                + "then insert into table");
 
         //make table not enabled to be edited
         table.setEnabled(false);
@@ -494,11 +494,8 @@ public class FreezePointDepression extends JApplet{
         }       
         
         //set default values of cells with numbers
-        table.setValueAt(0, 0, 1);
         table.setValueAt(0, 1, 1);
         table.setValueAt(0, 2, 1);
-        table.setValueAt(-7.54, 0, 2);
-        table.setValueAt(-22.36, 0, 3);
         table.setValueAt(WATER_FREEZE, 3, 1);
         table.setValueAt(WATER_FREEZE, 3, 2);
         table.setValueAt(WATER_FREEZE, 3, 3);
@@ -574,7 +571,7 @@ public class FreezePointDepression extends JApplet{
         //make pauseLabel
         pauseLabel = new JLabel("**Pause/Play simulation"
                 + " with spacebar or mouseclick in gray box.");
-        sigfigLabel = new JLabel("***Enter Molality using 3 significant figures.");
+        sigfigLabel = new JLabel("***Enter Molality using 4 significant figures.");
         sigfigLabel2 = new JLabel("***Enter all other values using 4 significant figures.");
 
         //set font color to white
@@ -651,16 +648,14 @@ public class FreezePointDepression extends JApplet{
                 incorrectLabel.setVisible(false);
                 incorrectLabel2.setVisible(false);
                 float answer2 = 0f, answer3 = 0f;
-                float mol2a = 2.0268f;
-                float mol2b = 3.1532f;
-                float mol2c = 4.8011f;
+                float mol2a = 2.027f;
+                float mol2b = 3.153f;
+                float mol2c = 4.801f;
                 float vhf2 = 2;
                 float mol3a = 4.007f;
                 float mol3b = 4.513f;
                 float mol3c = 5.853f;
                 float vhf3 = 3;
-                float cell_0_2 = Float.parseFloat(table.getValueAt(0, 2).toString());
-                float cell_0_3 = Float.parseFloat(table.getValueAt(0, 3).toString());
                 float cell_1_2, cell_1_3, cell_2_2, cell_2_3;
 
                 cell_1_2 = Float.parseFloat(table.getValueAt(1, 2).toString());
@@ -668,32 +663,31 @@ public class FreezePointDepression extends JApplet{
                 cell_2_2 = Float.parseFloat(table.getValueAt(2, 2).toString());
                 cell_2_3 = Float.parseFloat(table.getValueAt(2, 3).toString());
                 
-                
-                if((cell_0_2 == -7.54f && cell_1_2 == vhf2 && cell_2_2 == mol2a) || (cell_0_2 == -11.73f && cell_1_2 == vhf2 && cell_2_2 == mol2b) || (cell_0_2 == -17.87f && cell_1_2 == vhf2 && cell_2_2 == mol2c)){
+                if((knownComboBox.getSelectedIndex() == 0 && cell_1_2 == vhf2 && cell_2_2 == mol2a) || (knownComboBox.getSelectedIndex() == 1 && cell_1_2 == vhf2 && cell_2_2 == mol2b) || (knownComboBox.getSelectedIndex() == 2 && cell_1_2 == vhf2 && cell_2_2 == mol2c)){
                     correctLabel.setVisible(true);
                 }else{
                     incorrectLabel.setVisible(true);
                 }
                 
-                if((cell_0_3 == -22.36f && cell_1_3 == vhf3 && cell_2_3 == mol3a) || (cell_0_3 == -25.18f && cell_1_3 == vhf3 && cell_2_3 == mol3b) || (cell_0_3 == -32.67f && cell_1_3 == vhf3 && cell_2_3 == mol3c)){
+                if((unknownComboBox.getSelectedIndex() == 0 && cell_1_3 == vhf3 && cell_2_3 == mol3a) || (unknownComboBox.getSelectedIndex() == 1 && cell_1_3 == vhf3 && cell_2_3 == mol3b) || (unknownComboBox.getSelectedIndex() == 2 && cell_1_3 == vhf3 && cell_2_3 == mol3c)){
                     correctLabel2.setVisible(true);
                 }else{
                     incorrectLabel2.setVisible(true);
                 }
                 
-                if(cell_0_2 == -7.54f){
+                if(knownComboBox.getSelectedIndex() == 0){
                     answer2 = mol2a;
-                }else if(cell_0_2 == -11.73f){
+                }else if(knownComboBox.getSelectedIndex() == 1){
                     answer2 = mol2b;
-                }else if(cell_0_2 == -17.87f){
+                }else if(knownComboBox.getSelectedIndex() == 2){
                     answer2 = mol2c;
                 }
 
-                if(cell_0_3 == -22.36f){
+                if(unknownComboBox.getSelectedIndex() == 0){
                     answer3 = mol3a;
-                }else if(cell_0_3 == -25.18f){
+                }else if(unknownComboBox.getSelectedIndex() == 1){
                     answer3 = mol3b;
-                }else if(cell_0_3 == -32.67f){
+                }else if(unknownComboBox.getSelectedIndex() == 2){
                     answer3 = mol3c;
                 }
                                
@@ -738,26 +732,29 @@ public class FreezePointDepression extends JApplet{
                 help = "Help Readme";
 
                 //make string variable for help content 
-                helpContent = "This program is designed to show you\n"
-                        + "the concept of diffusion.\n\nInstructions: \n"
-                        + "Select from the drop down boxes the two elements\n"
-                        + "you want to see displayed in the simulation box.\n\n"
-                        + "The colors and size of the particles in the box\n"
-                        + "will change to represent the elements you've\n"
-                        + "chosen.  \n\nAfter one particle of each element"
-                        + " has crossed\nthe finish line the table will display"
-                        + "the time in\nseconds for each element particle.\n\n"
-                        + "Using the periodic table, available by clicking "
-                        + "the\nPeriodic Table button, and the information in "
-                        + "the table\nat the bottom of the screen you will be "
-                        + "able to \ncalculate the rate of speed in meters per "
-                        + "second\nand the molecular weight of each particle\n"
-                        + "and type them into the table.\n\nYou can then "
-                        + "check your answers by using the check\nanswer "
-                        + "button. If the answers are correct you'll see "
-                        + "\n'Correct' show if the answers are incorrect "
-                        + "you'll\nhave the chance to change your answers and "
-                        + "\nrecheck 2 more times.\n\nGood Luck!";
+                helpContent = "This program is designed to show you "
+                        + "the concept\nof Freeze Point Depression.\n\n"
+                        + "\u0394Tf = Change in Temperature\n"
+                        + "i = van’t Hoff factor\n"
+                        + "m = Molality\n"
+                        + "Kf = Freeze Point Depression for water\n\n"
+                        + "Instructions:\n\n"
+                        + "Select the mols value from the drop down boxes "
+                        + "for\nbeaker 2 and beaker 3.\nThe number of solutes "
+                        + "in each beaker will change with\nthe change in mols "
+                        + "value.\n\nUse the slider to see changes when the "
+                        + "temperature\nheats up or cools down.\n\nWhen you are "
+                        + "ready for the quiz, set the temperature\nto its lowest "
+                        + "setting and when all three beakers have\nfrozen enter "
+                        + "the answers in the table and click the\ncheck answers "
+                        + "button.\n\nUsing the Freeze Point Depression information"
+                        + ",\navailable by clicking the Assistance button, and the\n"
+                        + "information in the table at the bottom of the screen\n"
+                        + "you will be able to calculate the van't hoff factor (i)\n"
+                        + "and the molality (m) and enter them into the table.\n\n"
+                        + "You can then check your answers by using the check\n"
+                        + "answer button.";
+                        
 
                 //make text field for content 
                 helpTextArea = new JTextArea(helpContent);
@@ -830,15 +827,15 @@ public class FreezePointDepression extends JApplet{
                 switch(knownComboBox.getSelectedIndex()){
                     case 0:
                         solutes = 3;
-                        table.setValueAt(-7.54, 0, 2);
+                        beaker2 = "-7.54\u2070C";
                         break;
                     case 1:
                         solutes = 5;
-                        table.setValueAt(-11.73, 0, 2);
+                        beaker2 = "-11.73\u2070C";
                         break;
                     case 2:
                         solutes = 7;
-                        table.setValueAt(-17.87, 0, 2);
+                        beaker2 = "-17.87\u2070C";
                 }
                 
                 table.setValueAt("", 1, 2);
@@ -850,8 +847,8 @@ public class FreezePointDepression extends JApplet{
             }
         });
         
-        //create a listener for the periodic button 
-        periodButton.addActionListener(new ActionListener() {
+        //create a listener for the assist button 
+        assistButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
@@ -918,11 +915,9 @@ public class FreezePointDepression extends JApplet{
                 table.setValueAt(DEGREE, 1, 0);
                 table.setValueAt(MOLALITY, 2, 0);
                 table.setValueAt(WATER_CONSTANT, 3, 0);
-                table.setValueAt(0, 0, 1);
                 table.setValueAt(0, 1, 1);
                 table.setValueAt(0, 2, 1);
-                table.setValueAt(-7.54, 0, 2);
-                table.setValueAt(-22.36, 0, 3);
+                setValuesHidden();
                 table.setValueAt(WATER_FREEZE, 3, 1);
                 table.setValueAt(WATER_FREEZE, 3, 2);
                 table.setValueAt(WATER_FREEZE, 3, 3);
@@ -985,15 +980,15 @@ public class FreezePointDepression extends JApplet{
                 switch(unknownComboBox.getSelectedIndex()){
                     case 0:
                         solutes = 9;
-                        table.setValueAt(-22.36, 0, 3);
+                        beaker3 = "-22.36\u2070C";
                         break;
                     case 1:
                         solutes = 11;
-                        table.setValueAt(-25.18, 0, 3);
+                        beaker3 = "-25.18\u2070C";
                         break;
                     case 2:
                         solutes = 13;
-                        table.setValueAt(-32.67, 0, 3);
+                        beaker3 = "-32.67\u2070C";
                 }
                 
                 
@@ -1001,18 +996,7 @@ public class FreezePointDepression extends JApplet{
                 table.setValueAt("", 2, 3);
                 
                 bt.setNumSolutes2(solutes);
-                
-//                if(!Element.isGateOpen()){
-//                //set box2 to get the selected index
-//                box2 = unknownComboBox.getSelectedIndex();
-//                bt.particleFill(box1, box2);
-//
-//                //declares choice2 var. and sets value to selected item
-//                String choice2 = unknownComboBox.getSelectedItem().toString();
-//                //sets value at 1,0 in table to choice2
-//                table.setValueAt(choice2, 1, 0);
-//                
-//                }
+
                 bt.requestFocus();
             }
         });
@@ -1030,9 +1014,8 @@ public class FreezePointDepression extends JApplet{
             }
         }
     }
-    
-    
-        @Override
+     
+    @Override
     public void start(){
 
         knownComboBox.setSelectedIndex(0);
@@ -1049,11 +1032,9 @@ public class FreezePointDepression extends JApplet{
         table.setValueAt(DEGREE, 1, 0);
         table.setValueAt(MOLALITY, 2, 0);
         table.setValueAt(WATER_CONSTANT, 3, 0);
-        table.setValueAt(0, 0, 1);
         table.setValueAt(0, 1, 1);
         table.setValueAt(0, 2, 1);
-        table.setValueAt(-7.54, 0, 2);
-        table.setValueAt(-22.36, 0, 3);
+        setValuesHidden();
         table.setValueAt(WATER_FREEZE, 3, 1);
         table.setValueAt(WATER_FREEZE, 3, 2);
         table.setValueAt(WATER_FREEZE, 3, 3);
@@ -1084,5 +1065,17 @@ public class FreezePointDepression extends JApplet{
     
     public void setTableNotEditable(){
         table.setEnabled(false);
+    }
+    
+    public void setValuesVisible(){
+        table.setValueAt(beaker1, 0, 1);
+        table.setValueAt(beaker2, 0, 2);
+        table.setValueAt(beaker3, 0, 3);
+    }
+    
+    public void setValuesHidden(){
+        table.setValueAt("", 0, 1);
+        table.setValueAt("", 0, 2);
+        table.setValueAt("", 0, 3);
     }
 }

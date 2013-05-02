@@ -31,14 +31,17 @@ public class GasChamber extends PApplet {
     private AttractionBehavior negAtt;
     private AttractionBehavior posAtt;
     private AttractionBehavior cent1, cent2, cent3;
+    private AttractionBehavior ba1, ba2, ba3, ba4, ba5, ba6, ba7, ba8, ba9, ba10, ba11, ba12, ba13, ba14, ba15, ba16;
+    private AttractionBehavior ca1, ca2, ca3, ca4, ca5, ca6, ca7, ca8, ca9, ca10, ca11, ca12, ca13, ca14, ca15, ca16;
     private float radius, flit = .5f;
     private float soluteStr = .00f;
     private float negStr = .2f; 
     private float posStr = .00f; 
     private float centerStr = .008f; // attracts everything to middle
+    private float edge = 35; // range of pusher particles for beakers 2 and 3
     private Vec2D normGrav, mv;
     private Timer time1, time2, time3;
-    private int fp = 5500;
+    private int fp = 3500;
     private JOptionPane jp1, jp2, jp3;
     private JDialog jd1, jd2, jd3;
     private FreezePointDepression fpd = new FreezePointDepression();
@@ -47,7 +50,10 @@ public class GasChamber extends PApplet {
 // ***** look into setting beaker area to circle
     
    
-    private VerletParticle2D center1, center1a, center2, center3, top1, left1, right1, bottom1;
+    private VerletParticle2D center1, center2, center3;
+    private VerletParticle2D b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16;
+    private VerletParticle2D c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16;
+    
     private VerletPhysics2D physics1;
     private VerletPhysics2D physics2;
     private VerletPhysics2D physics3;
@@ -69,7 +75,7 @@ public class GasChamber extends PApplet {
         // center attraction points to move everything toward center as it freezes
         center1 = new Element(new Vec2D(125, 102));
         center1.lock();
-        cent1 = new AttractionBehavior(center1, width, centerStr);
+        cent1 = new AttractionBehavior(center1, width, centerStr * 1.2f);
         physics1.addParticle(center1);
         physics1.addBehavior(cent1);
         
@@ -84,6 +90,10 @@ public class GasChamber extends PApplet {
         cent3 = new AttractionBehavior(center3, width, centerStr * .8f);
         physics3.addParticle(center3);
         physics3.addBehavior(cent3);
+        
+        setupBeaker2EdgeRepellers();
+        setupBeaker3EdgeRepellers();
+        
 
         negA = new ArrayList<>();
         negB = new ArrayList<>();
@@ -104,7 +114,6 @@ public class GasChamber extends PApplet {
                if(flit < .2 && !isFrozen1){
                 time2.start();
                 isFrozen1 = true;
-                lockBeaker1();
                  
                 jp1 = new JOptionPane("Beaker 1 Frozen",JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                 jd1 = jp1.createDialog(null, "Beaker 1");
@@ -117,14 +126,13 @@ public class GasChamber extends PApplet {
         });
         
         //timer for the second beaker to freeze the particles when the temperature slider is below .2
-        time2 = new Timer(fp - 2500, new ActionListener() {
+        time2 = new Timer(fp - 1500 + (numSolutes1 * 200), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {                        
                 if(flit < .2 && !isFrozen2){
                 time3.start();
                 isFrozen2 = true;
-                lockBeaker2();
-                
+  
                 jp2 = new JOptionPane("Beaker 2 Frozen",JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                 jd2 = jp2.createDialog(null, "Beaker 2");
                 jd2.setSize(175, 100);
@@ -135,14 +143,15 @@ public class GasChamber extends PApplet {
         });
 
         //timer for the third beaker to freeze the particles when the temperature slider is below .2
-        time3 = new Timer(fp - 2500, new ActionListener() {
+        time3 = new Timer(fp - 2000 + (numSolutes2 * 100), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(flit < .2 && !isFrozen3){
                 isFrozen3 = true;
-                lockBeaker3();
-                keyPressed();
+
+                noLoop();
                 fpd.setTableEditable();
+                fpd.setValuesVisible();
                 
                 jp3 = new JOptionPane("Beaker 3 Frozen",JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                 jd3 = jp3.createDialog(null, "Beaker 3");
@@ -154,10 +163,10 @@ public class GasChamber extends PApplet {
         });
 
 
-        mv = new Vec2D(random(-flit, flit), random(-flit, flit));
-        normGrav = new Vec2D(0.0f, 0.00f);
+//        mv = new Vec2D(random(-flit, flit), random(-flit, flit));
+        normGrav = new Vec2D(0.0f, 0.0000f);
         grav = new GravityBehavior(normGrav);
-        move = new ConstantForceBehavior(mv);  // sets the force to be only one thing, never changing unless I reinitialize it below
+//        move = new ConstantForceBehavior(mv);  // sets the force to be only one thing, never changing unless I reinitialize it below
 
         //negA list fill and add behaviors
         for (int i = 0; i < numParts; i++) {                                    // AEB break these into separate methods to reduce clutter in setup method
@@ -424,7 +433,7 @@ public class GasChamber extends PApplet {
             VerletParticle2D ai = solB.get(i);
             for (int j = i + 1; j < solB.size(); j++) {
                 VerletParticle2D aj = solB.get(j);
-                physics2.addSpring(new VerletMinDistanceSpring2D(ai, aj, 12f, 1f));
+                physics2.addSpring(new VerletMinDistanceSpring2D(ai, aj, 16f, 1f));
             }
         }
 
@@ -433,7 +442,7 @@ public class GasChamber extends PApplet {
             VerletParticle2D ai = solC.get(i);
             for (int j = i + 1; j < solC.size(); j++) {
                 VerletParticle2D aj = solC.get(j);
-                physics3.addSpring(new VerletMinDistanceSpring2D(ai, aj, 12f, 1f));
+                physics3.addSpring(new VerletMinDistanceSpring2D(ai, aj, 16f, 1f));
             }
         }
     }
@@ -463,8 +472,42 @@ public class GasChamber extends PApplet {
     @Override
     public void draw() {
         cent1.setStrength(centerStr * 1.2f);
-        cent2.setStrength(centerStr * .8f);
+        cent2.setStrength(centerStr * .7f);
         cent3.setStrength(centerStr * .6f);
+        
+        ba1.setStrength(-centerStr * 5);
+        ba2.setStrength(-centerStr * 4);
+        ba3.setStrength(-centerStr * 4);
+        ba4.setStrength(-centerStr * 4);
+        ba5.setStrength(-centerStr * 5);
+        ba6.setStrength(-centerStr * 4);
+        ba7.setStrength(-centerStr * 4);
+        ba8.setStrength(-centerStr * 4);
+        ba9.setStrength(-centerStr * 5);
+        ba10.setStrength(-centerStr * 4);
+        ba11.setStrength(-centerStr * 4);
+        ba12.setStrength(-centerStr * 4);
+        ba13.setStrength(-centerStr * 5);
+        ba14.setStrength(-centerStr * 4);
+        ba15.setStrength(-centerStr * 4);
+        ba16.setStrength(-centerStr * 4);
+        
+        ca1.setStrength(-centerStr * 5);
+        ca2.setStrength(-centerStr * 4);
+        ca3.setStrength(-centerStr * 4);
+        ca4.setStrength(-centerStr * 4);
+        ca5.setStrength(-centerStr * 5);
+        ca6.setStrength(-centerStr * 4);
+        ca7.setStrength(-centerStr * 4);
+        ca8.setStrength(-centerStr * 4);
+        ca9.setStrength(-centerStr * 5);
+        ca10.setStrength(-centerStr * 4);
+        ca11.setStrength(-centerStr * 4);
+        ca12.setStrength(-centerStr * 4);
+        ca13.setStrength(-centerStr * 5);
+        ca14.setStrength(-centerStr * 4);
+        ca15.setStrength(-centerStr * 4);
+        ca16.setStrength(-centerStr * 4);
 
         background(200);
 
@@ -486,7 +529,7 @@ public class GasChamber extends PApplet {
 //        ellipse(center2.x, center2.y, radius * 2, radius * 2);
 //        ellipse(center3.x, center3.y, radius * 2, radius * 2);
 
-        update1();
+        update1();      
         update2();
         update3();
         
@@ -498,9 +541,9 @@ public class GasChamber extends PApplet {
             time1.stop();
             time2.stop();
             time3.stop();
-            unlockBeaker1();
-            unlockBeaker2();
-            unlockBeaker3();
+//            unlockBeaker1();
+//            unlockBeaker2();
+//            unlockBeaker3();
             isFrozen1 = false;
             isFrozen2 = false;
             isFrozen3 = false;
@@ -509,49 +552,6 @@ public class GasChamber extends PApplet {
             resetParts();
         }
         
-        
-
-        //reset particles for testing purposes  AEB - pull this before distribution
-//        if (mousePressed) {
-//
-//            for (int i = 0; i < negA.size(); i++) {
-//                negA.get(i).lock();
-//                negA.get(i).set(random(35, 220), random(35, 185));
-////                negA.get(i).addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
-//            }
-//            for (int i = 0; i < negB.size(); i++) {
-//                negB.get(i).lock();
-//                negB.get(i).set(random(310, 490), random(35, 185));
-//            }
-//            for (int i = 0; i < negC.size(); i++) {
-//                negC.get(i).lock();
-//                negC.get(i).set(random(585, 770), random(35, 185));
-//            }
-//            for (int i = 0; i < solB.size(); i++) {
-//                solB.get(i).lock();
-//                solB.get(i).set(random(350, 450), random(60, 130));
-//            }
-//            for (int i = 0; i < solC.size(); i++) {
-//                solC.get(i).lock();
-//                solC.get(i).set(random(625, 725), random(60, 130));
-//            }
-//        } else {
-//            for (Element a : negA) {
-//                a.unlock();
-//            }
-//            for (Element a : negB) {
-//                a.unlock();
-//            }
-//            for (Element a : negC) {
-//                a.unlock();
-//            }
-//            for (Element a : solB) {
-//                a.unlock();
-//            }
-//            for (Element a : solC) {
-//                a.unlock();
-//            }
-//        }
     }
 
     @Override
@@ -703,25 +703,32 @@ public class GasChamber extends PApplet {
         
         //display negative particles of negA and check for proximity to solutes
         for (Element p : negA) {
-            negAtt.setAttractor(p);
-            negAtt.setStrength(negStr);
-            negAtt.apply(p);
-            
-            float c1;
-            
-            if(centerStr < 0){
-                c1 = centerStr / 2;
-            }else{
-                c1 = centerStr * 2f;
+            if(isTiming){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(0);
+                negAtt.apply(p);
             }
-            cent1.setStrength(c1);
             
-//        System.out.println("NegAtt Str:" + negAtt.getStrength());               // AEB how to set the attraction behavior strength for all particles
-            
-            p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
+            if(!isFrozen1){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(negStr);
+                negAtt.apply(p);
 
-            checkEdges(p, 37, 213);
-            
+                float cn1;
+
+                if(centerStr < 0){
+                    cn1 = centerStr / 2;
+                }else{
+                    cn1 = centerStr * 2f;
+                }
+                cent1.setStrength(cn1);
+
+    //        System.out.println("NegAtt Str:" + negAtt.getStrength());               // AEB how to set the attraction behavior strength for all particles
+
+                p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
+
+                checkEdges(p, 37, 213);
+            }
             fill(255, 0, 0); // red
 
 //            count++;
@@ -742,32 +749,30 @@ public class GasChamber extends PApplet {
     public void update2() {
         //display negative particles of negB and check for proximity to solutes
         for (Element p : negB) {
-            negAtt.setAttractor(p);
-            negAtt.setStrength(negStr);
-            negAtt.apply(p);
-            
-            float c2;
-            
-            if(centerStr < 0){
-                c2 = centerStr / 1.35f;
-            }else{
-                c2 = centerStr;
+            if(isTiming){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(0);
+                negAtt.apply(p);
             }
-            cent2.setStrength(c2);
-
-            p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
             
-            checkEdges(p, 312, 488);
+            if(!isFrozen2){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(negStr);
+                negAtt.apply(p);
 
-//            for (Element a : solB) {
-//                if ((sqrt((a.x - p.x) * (a.x - p.x))) < 10 && (sqrt((a.y - p.y) * (a.y - p.y))) < 10) {
-//                    mv = new Vec2D(0,0);
-//                    move.setForce(mv);
-//                    p.lock();
-//                    p.removeBehavior(move);
-//                    p.unlock();
-//                }
-//            }
+                float cn2;
+
+                if(centerStr < 0){
+                    cn2 = centerStr / 1.35f;
+                }else{
+                    cn2 = centerStr;
+                }
+                cent2.setStrength(cn2);
+
+                p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
+
+                checkEdges(p, 312, 488);
+            }
             
 
             fill(255, 0, 0); // red
@@ -803,7 +808,7 @@ public class GasChamber extends PApplet {
                 for (int j = 0; j < solB.size(); j++) {
                     VerletParticle2D aj = solB.get(j);
                     if(aj != s2){
-                    physics2.addSpring(new VerletMinDistanceSpring2D(s2, aj, 12f, 1f));
+                    physics2.addSpring(new VerletMinDistanceSpring2D(s2, aj, 16f, 1f));
                     }
                 }
 
@@ -847,29 +852,37 @@ public class GasChamber extends PApplet {
 
     public void update3() {
         //display negative particles of negC and check for proximity to solutes
-        for (Element p : negC) {           
-            negAtt.setAttractor(p);
-            negAtt.setStrength(negStr);
-            negAtt.apply(p);
+        for (Element p : negC) { 
+            if(isTiming){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(0);
+                negAtt.apply(p);
+                centerStr += .00001f;
+            }            
             
-            if(p == negC.get(negC.size() - 1)){
-               negAtt.setStrength(-.1f);
-               negAtt.apply(p);
-            }
-            
-            float c3;
-            
-            if(centerStr < 0){
-                c3 = centerStr / 1.35f;
-            }else{
-                c3 = centerStr * .85f;
-            }
-            cent3.setStrength(c3);
-            
-            p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
+            if(!isFrozen3){
+                negAtt.setAttractor(p);
+                negAtt.setStrength(negStr);
+                negAtt.apply(p);
 
-            checkEdges(p, 587, 763);
+                if(p == negC.get(negC.size() - 1)){
+                   negAtt.setStrength(-.1f);
+                   negAtt.apply(p);
+                }
 
+                float cn3;
+
+                if(centerStr < 0){
+                    cn3 = centerStr / 1.35f;
+                }else{
+                    cn3 = centerStr * .85f;
+                }
+                cent3.setStrength(cn3);
+
+                p.addSelf(new Vec2D(random(-flit, flit), random(-flit, flit)));
+
+                checkEdges(p, 587, 763);
+            }
 //            for (Element a : solC) {
 //                if ((sqrt((a.x - p.x) * (a.x - p.x))) < 10 && (sqrt((a.y - p.y) * (a.y - p.y))) < 10) {
 //                    p.lock();
@@ -909,7 +922,7 @@ public class GasChamber extends PApplet {
                 for (int j = 0; j < solC.size(); j++) {
                     VerletParticle2D aj = solC.get(j);
                     if(aj != s3){
-                    physics3.addSpring(new VerletMinDistanceSpring2D(s3, aj, 12f, 1f));
+                    physics3.addSpring(new VerletMinDistanceSpring2D(s3, aj, 16f, 1f));
                     }
                 }
 
@@ -995,6 +1008,202 @@ public class GasChamber extends PApplet {
         this.isFrozen3 = isFrozen3;
     }
     
+    public void setupBeaker2EdgeRepellers(){
+        //setting up pusher particles for the edge of beaker 2
+        b1 = new Element(new Vec2D(301, 16));
+        b1.lock();
+        ba1 = new AttractionBehavior(b1, edge + 10, -centerStr * 2);
+        physics2.addParticle(b1);
+        physics2.addBehavior(ba1);
+        
+        b2 = new Element(new Vec2D(351, 16));
+        b2.lock();
+        ba2 = new AttractionBehavior(b2, edge, -centerStr * 2);
+        physics2.addParticle(b2);
+        physics2.addBehavior(ba2);
+        
+        b3 = new Element(new Vec2D(401, 16));
+        b3.lock();
+        ba3 = new AttractionBehavior(b3, edge, -centerStr * 2);
+        physics2.addParticle(b3);
+        physics2.addBehavior(ba3);
+        
+        b4 = new Element(new Vec2D(451, 16));
+        b4.lock();
+        ba4 = new AttractionBehavior(b4, edge, -centerStr * 2);
+        physics2.addParticle(b4);
+        physics2.addBehavior(ba4);
+        
+        b5 = new Element(new Vec2D(499, 16));
+        b5.lock();
+        ba5 = new AttractionBehavior(b5, edge + 10, -centerStr * 2);
+        physics2.addParticle(b5);
+        physics2.addBehavior(ba5);      
+        
+        b6 = new Element(new Vec2D(499, 60));
+        b6.lock();
+        ba6 = new AttractionBehavior(b6, edge, -centerStr * 2);
+        physics2.addParticle(b6);
+        physics2.addBehavior(ba6);
+        
+        b7 = new Element(new Vec2D(499, 103));
+        b7.lock();
+        ba7 = new AttractionBehavior(b7, edge, -centerStr * 2);
+        physics2.addParticle(b7);
+        physics2.addBehavior(ba7);
+        
+        b8 = new Element(new Vec2D(499, 146));
+        b8.lock();
+        ba8 = new AttractionBehavior(b8, edge, -centerStr * 2);
+        physics2.addParticle(b8);
+        physics2.addBehavior(ba8);
+        
+        b9 = new Element(new Vec2D(499, 189));
+        b9.lock();
+        ba9 = new AttractionBehavior(b9, edge + 10, -centerStr * 2);
+        physics2.addParticle(b9);
+        physics2.addBehavior(ba9);
+             
+        b10 = new Element(new Vec2D(451, 189));
+        b10.lock();
+        ba10 = new AttractionBehavior(b10, edge, -centerStr * 2);
+        physics2.addParticle(b10);
+        physics2.addBehavior(ba10);
+        
+        b11 = new Element(new Vec2D(401, 189));
+        b11.lock();
+        ba11 = new AttractionBehavior(b11, edge, -centerStr * 2);
+        physics2.addParticle(b11);
+        physics2.addBehavior(ba11);
+        
+        b12 = new Element(new Vec2D(351, 189));
+        b12.lock();
+        ba12 = new AttractionBehavior(b12, edge, -centerStr * 2);
+        physics2.addParticle(b12);
+        physics2.addBehavior(ba12);
+        
+        b13 = new Element(new Vec2D(301, 189));
+        b13.lock();
+        ba13 = new AttractionBehavior(b13, edge + 10, -centerStr * 2);
+        physics2.addParticle(b13);
+        physics2.addBehavior(ba13);
+        
+        b14 = new Element(new Vec2D(301, 146));
+        b14.lock();
+        ba14 = new AttractionBehavior(b14, edge, -centerStr * 2);
+        physics2.addParticle(b14);
+        physics2.addBehavior(ba14);
+        
+        b15 = new Element(new Vec2D(301, 103));
+        b15.lock();
+        ba15 = new AttractionBehavior(b15, edge, -centerStr * 2);
+        physics2.addParticle(b15);
+        physics2.addBehavior(ba15);
+        
+        b16 = new Element(new Vec2D(301, 60));
+        b16.lock();
+        ba16 = new AttractionBehavior(b16, edge, -centerStr * 2);
+        physics2.addParticle(b16);
+        physics2.addBehavior(ba16);
+    }
     
+    public void setupBeaker3EdgeRepellers(){
+        //setting up pusher particles for the edge of beaker 3
+        c1 = new Element(new Vec2D(576, 16));
+        c1.lock();
+        ca1 = new AttractionBehavior(c1, edge + 10, -centerStr * 2);
+        physics3.addParticle(c1);
+        physics3.addBehavior(ca1);
+        
+        c2 = new Element(new Vec2D(626, 16));
+        c2.lock();
+        ca2 = new AttractionBehavior(c2, edge, -centerStr * 2);
+        physics3.addParticle(c2);
+        physics3.addBehavior(ca2);
+        
+        c3 = new Element(new Vec2D(676, 16));
+        c3.lock();
+        ca3 = new AttractionBehavior(c3, edge, -centerStr * 2);
+        physics3.addParticle(c3);
+        physics3.addBehavior(ca3);
+        
+        c4 = new Element(new Vec2D(726, 16));
+        c4.lock();
+        ca4 = new AttractionBehavior(c4, edge, -centerStr * 2);
+        physics3.addParticle(c4);
+        physics3.addBehavior(ca4);
+        
+        c5 = new Element(new Vec2D(774, 16));
+        c5.lock();
+        ca5 = new AttractionBehavior(c5, edge + 10, -centerStr * 2);
+        physics3.addParticle(c5);
+        physics3.addBehavior(ca5);
+         
+        c6 = new Element(new Vec2D(774, 60));
+        c6.lock();
+        ca6 = new AttractionBehavior(c6, edge, -centerStr * 2);
+        physics3.addParticle(c6);
+        physics3.addBehavior(ca6);
+        
+        c7 = new Element(new Vec2D(774, 103));
+        c7.lock();
+        ca7 = new AttractionBehavior(c7, edge, -centerStr * 2);
+        physics3.addParticle(c7);
+        physics3.addBehavior(ca7);
+        
+        c8 = new Element(new Vec2D(774, 146));
+        c8.lock();
+        ca8 = new AttractionBehavior(c8, edge, -centerStr * 2);
+        physics3.addParticle(c8);
+        physics3.addBehavior(ca8);
+        
+        c9 = new Element(new Vec2D(774, 189));
+        c9.lock();
+        ca9 = new AttractionBehavior(c9, edge + 10, -centerStr * 2);
+        physics3.addParticle(c9);
+        physics3.addBehavior(ca9);
+            
+        c10 = new Element(new Vec2D(726, 189));
+        c10.lock();
+        ca10 = new AttractionBehavior(c10, edge, -centerStr * 2);
+        physics3.addParticle(c10);
+        physics3.addBehavior(ca10);
+        
+        c11 = new Element(new Vec2D(676, 189));
+        c11.lock();
+        ca11 = new AttractionBehavior(c11, edge, -centerStr * 2);
+        physics3.addParticle(c11);
+        physics3.addBehavior(ca11);
+        
+        c12 = new Element(new Vec2D(626, 189));
+        c12.lock();
+        ca12 = new AttractionBehavior(c12, edge, -centerStr * 2);
+        physics3.addParticle(c12);
+        physics3.addBehavior(ca12);
+        
+        c13 = new Element(new Vec2D(576, 189));
+        c13.lock();
+        ca13 = new AttractionBehavior(c13, edge + 10, -centerStr * 2);
+        physics3.addParticle(c13);
+        physics3.addBehavior(ca13);
+        
+        c14 = new Element(new Vec2D(576, 146));
+        c14.lock();
+        ca14 = new AttractionBehavior(c14, edge, -centerStr * 2);
+        physics3.addParticle(c14);
+        physics3.addBehavior(ca14);
+        
+        c15 = new Element(new Vec2D(576, 103));
+        c15.lock();
+        ca15 = new AttractionBehavior(c15, edge, -centerStr * 2);
+        physics3.addParticle(c15);
+        physics3.addBehavior(ca15);
+        
+        c16 = new Element(new Vec2D(576, 60));
+        c16.lock();
+        ca16 = new AttractionBehavior(c16, edge, -centerStr * 2);
+        physics3.addParticle(c16);
+        physics3.addBehavior(ca16);
+    }
     
 }
