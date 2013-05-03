@@ -1,7 +1,8 @@
 /**
  * Programmers: Chase McCowan & Ed Broxson 
  * Date: 03/13/2013 
- * Purpose: Make a table model for use in GaseousDiffusion
+ * Modified 5-1-13 by Ed Broxson
+ * Purpose: Make a table model for use in FreezePointDepression
  */
 package chemistry;
 
@@ -10,7 +11,7 @@ import javax.swing.table.*;
 import java.util.*;
 import javax.swing.event.TableModelListener;
 
-public class MyTableModel extends DefaultTableModel {
+public class MyTableModel extends DefaultTableModel {    
   public MyTableModel() {
       JTable table = null;
       table.getModel().addTableModelListener((TableModelListener) this);
@@ -30,9 +31,14 @@ public class MyTableModel extends DefaultTableModel {
   /** Override this method to return true if cell is editable */
   @Override
   public boolean isCellEditable(int row, int column) {
+      //set columns and rows no to be allowed to be editable
       if (column < 2){  
         return false;  
-      } 
+      }
+      if (row < 1 || row > 2){
+          return false;
+      }
+      
      Class columnClass = getColumnClass(column);
      return columnClass != ImageIcon.class &&
       columnClass != Date.class;
