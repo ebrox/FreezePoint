@@ -33,7 +33,7 @@ public class GasChamber extends PApplet {
     private GravityBehavior grav;
     private JDialog jd1, jd2, jd3;
     private JOptionPane jp1, jp2, jp3;
-    private Timer time1, time2, time3;
+    private Timer time1, time2, time2a, time3, time3a;
     private Vec2D normGrav;
     private VerletParticle2D center1, center2, center3;
     private VerletParticle2D b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16;
@@ -54,7 +54,7 @@ public class GasChamber extends PApplet {
     private float edge = 35; // range of repeller particles, set along edges, for beakers 2 and 3
     private int numParts = 20; // number of water molecules to create in each beaker
     private int numSolutes2 = 3, numSolutes3 = 9; // number of solutes for beaker 2 and 3 to start with
-    private int fp = 3500; // millisecond delay for first timer, time1, other timers use this as a base
+    private int fp = 5000; // millisecond delay for first timer, time1, other timers use this as a base
 
     /**
      * check if Element is at the edge of it's physics world then change it's
@@ -112,21 +112,33 @@ public class GasChamber extends PApplet {
 
         //start timers if slider is close to freezing - if flit is than .2
         //stop timers and reset table and particles if slider is moved before freezing
-        if (flit < .2) {
+        if(flit < .31){
             time1.start();
             isTiming = true;
-
-        } else if (flit > .19 && isTiming) {
+        }else if(flit > .30 && isTiming){
             time1.stop();
             time2.stop();
+            time2a.stop();
             time3.stop();
+            time3a.stop();
             isFrozen1 = false;
             isFrozen2 = false;
             isFrozen3 = false;
             isTiming = false;
             fpd.setTableNotEditable();
         }
-
+        
+        if (flit < .21 && !isFrozen1) {
+            time2a.start();
+        }else if(flit < .21 && isFrozen1 && !time2a.isRunning()){
+            time2.start();
+        }
+        
+        if(flit < .11 && !isFrozen2){
+            time3a.start();
+        }else if(flit < .11 && isFrozen2 && !time3a.isRunning()){
+            time3.start();
+        }
     }
 
     /**
@@ -426,14 +438,16 @@ public class GasChamber extends PApplet {
         time1 = new Timer(fp, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (flit < .2 && !isFrozen1) {
-                    time2.start();
+                if (flit < .31 && !isFrozen1) {
                     isFrozen1 = true;
 
+                    //set values for (Delta)Tf  for beaker 1 visible in the table
+                    fpd.setBeaker1DeltaVisible();
+                    
                     jp1 = new JOptionPane("Beaker 1 Frozen", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                     jd1 = jp1.createDialog(null, "Beaker 1");
                     jd1.setSize(175, 100);
-                    jd1.setLocation(445, 475);
+                    jd1.setLocation(720, 475);
                     jd1.setVisible(true);
 
                 }
@@ -441,13 +455,15 @@ public class GasChamber extends PApplet {
         });
 
         //timer for the second beaker to freeze the particles when the temperature slider is below .2 based on flit
-        time2 = new Timer(fp - 1500 + (numSolutes2 * 200), new ActionListener() {
+        time2 = new Timer(fp - 1000 + (numSolutes2 * 150), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (flit < .2 && !isFrozen2) {
-                    time3.start();
+                if (flit < .21 && !isFrozen2) {
                     isFrozen2 = true;
 
+                    //set values for (Delta)Tf  for beaker 2 visible in the table
+                    fpd.setBeaker2DeltaVisible();
+                    
                     jd1.setVisible(false);
                     jp2 = new JOptionPane("Beaker 2 Frozen", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                     jd2 = jp2.createDialog(null, "Beaker 2");
@@ -457,19 +473,27 @@ public class GasChamber extends PApplet {
                 }
             }
         });
+        
+        //timer to trigger time2 timer after several more seconds to deal with user slamming slider all the way to freeze
+        time2a = new Timer(fp - 2000, new ActionListener(){
 
-        //timer for the third beaker to freeze the particles when the temperature slider is below .2 based on filt
-        time3 = new Timer(fp - 2000 + (numSolutes3 * 100), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (flit < .2 && !isFrozen3) {
+                time2.start();
+            }
+            
+        });
+
+        //timer for the third beaker to freeze the particles when the temperature slider is below .2 based on filt
+        time3 = new Timer(fp - 1000 + (numSolutes3 * 400), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (flit < .11 && !isFrozen3) {
                     isFrozen3 = true;
-                    //pause draw method
-                    noLoop();
                     //set table in FreezePointDepression editable to allow answers to be entered
                     fpd.setTableEditable();
-                    //set values for (Delta)Tf visible in the table
-                    fpd.setValuesVisible();
+                    //set values for (Delta)Tf  for beaker 3 visible in the table
+                    fpd.setBeaker3DeltaVisible();
                     //disable slider in FreezePointDepression until reset
                     fpd.disableSlider();
 
@@ -477,10 +501,20 @@ public class GasChamber extends PApplet {
                     jp3 = new JOptionPane("Beaker 3 Frozen", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, "Some Text");
                     jd3 = jp3.createDialog(null, "Beaker 3");
                     jd3.setSize(175, 100);
-                    jd3.setLocation(995, 475);
+                    jd3.setLocation(720, 475);
                     jd3.setVisible(true);
                 }
             }
+        });
+        
+        //timer to trigger time3 timer after several more seconds to deal with user slamming slider all the way to freeze
+        time3a = new Timer(fp - 2000, new ActionListener(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                time3.start();
+            }
+            
         });
 
         // Set's Gravity force for Solutes (X, Y) Positive Right/Down, Negative Left/Up

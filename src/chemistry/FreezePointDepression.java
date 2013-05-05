@@ -406,7 +406,7 @@ public class FreezePointDepression extends JApplet {
         enterLabel.setForeground(Color.white);
 
         //create arrays for column headings and table data
-        String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium", "Beaker 3: Water/Lithium Sulfide"};
+        String[] colHeading = {"Calculation", "Beaker 1: Water", "Beaker 2: Water/Sodium Chloride", "Beaker 3: Water/Lithium Sulfide"};
         String[][] data = {{"<html>\u0394T<sub>f</sub></html>", "", "", ""}, {"i", "", "", ""}, {"m", "", "", ""}, {"<html>K<sub>f</sub></html>", "", "", ""}};
 
         //create table
@@ -720,9 +720,9 @@ public class FreezePointDepression extends JApplet {
                         + "in each beaker will change with\nthe change in mols "
                         + "value.\n\nUse the slider to see changes when the "
                         + "temperature\nheats up or cools down.\n\nWhen you are "
-                        + "ready for the quiz, set the temperature\nto its lowest "
-                        + "setting and when all three beakers have\nfrozen enter "
-                        + "the answers in the table and click the\ncheck answers "
+                        + "ready for the quiz, slowly lower the\ntemperature to its lowest "
+                        + "setting and when all three\nbeakers have frozen enter "
+                        + "the answers in the table\nand click the check answers "
                         + "button.\n\nUsing the Freeze Point Depression information"
                         + ",\navailable by clicking the Assistance button, and the\n"
                         + "information in the table at the bottom of the screen\n"
@@ -937,7 +937,7 @@ public class FreezePointDepression extends JApplet {
                 cent -= .02f;
 
                 // use flit value to disable or re-enable combo boxes
-                if (flit < .2) {
+                if (flit < .11) {
                     knownComboBox.setEnabled(false);
                     unknownComboBox.setEnabled(false);
                 } else {
@@ -951,6 +951,11 @@ public class FreezePointDepression extends JApplet {
                 bt.setFlit(flit);
                 bt.setNegStr(negStr);
                 bt.requestFocus();
+                
+                System.out.println("Value: " + value);
+                System.out.println("NegStr: " + negStr);
+                System.out.println("Flit: " + flit);
+                System.out.println("CenterStr: " + bt.getCenterStr() + "\n");
             }
         });
 
@@ -1033,12 +1038,26 @@ public class FreezePointDepression extends JApplet {
         table.setValueAt("", 0, 3);
     }
 
+    
+
     /**
-     * display (Delta)Tf values after beakers are frozen
+     * display (Delta)Tf values after beaker 1 is frozen
      */
-    public void setValuesVisible() {
+    public void setBeaker1DeltaVisible(){
         table.setValueAt(beaker1, 0, 1);
+    }
+    
+    /**
+     * display (Delta)Tf values after beaker 2 is frozen
+     */
+    public void setBeaker2DeltaVisible(){
         table.setValueAt(beaker2, 0, 2);
+    }
+    
+    /**
+     * display (Delta)Tf values after beaker 3 is frozen
+     */
+    public void setBeaker3DeltaVisible(){
         table.setValueAt(beaker3, 0, 3);
     }
 
